@@ -1,6 +1,6 @@
 import { createContext, createEffect, createMemo, createSignal, on, useContext } from "solid-js";
 import type { JSX } from "solid-js/jsx-runtime";
-import { applyBoldFormatting, nodesToString, parseHtml } from "#/src/lib/dom";
+import { nodesToString, parseHtml } from "#/src/lib/dom";
 import { useAnkiFieldContext } from "./AnkiFieldsContext";
 import { useCardContext } from "./CardContext";
 import { useGeneralContext } from "./GeneralContext";
@@ -23,23 +23,11 @@ const FieldGroupContext = createContext<{
 }>();
 
 export function FieldGroupContextProvider(props: { children: JSX.Element }) {
-  const { $ankiFields, $isRootAnkiFields } = useAnkiFieldContext();
+  const { $ankiFields } = useAnkiFieldContext();
   const { $initialSide } = useCardContext();
   const { logger } = useGeneralContext();
 
-  const $sentenceField = createMemo(() => {
-    if (!$isRootAnkiFields()) return $ankiFields.Sentence;
-    if ($initialSide() === "front") return $ankiFields["kanji:Sentence"];
-
-    if ($ankiFields["furigana:SentenceFurigana"]) {
-      return applyBoldFormatting(
-        $ankiFields["kanji:Sentence"],
-        $ankiFields["furigana:SentenceFurigana"],
-      );
-    }
-
-    return $ankiFields["kanji:Sentence"];
-  });
+  const $sentenceField = createMemo(() => $ankiFields.Sentence);
   const $sentenceTranslationField = createMemo(() => $ankiFields.SentenceTranslation);
   const $pictureField = createMemo(() => $ankiFields.Picture);
   const $sentenceAudioField = createMemo(() => $ankiFields.SentenceAudio);

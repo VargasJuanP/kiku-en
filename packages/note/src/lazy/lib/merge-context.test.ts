@@ -41,33 +41,11 @@ describe("mergeContext", () => {
     expect(spans[1].textContent).toBe("old");
   });
 
-  it("clears SentenceFurigana if either side is empty", () => {
-    const base = {
-      SentenceFurigana: "",
-      Sentence: "a",
-      SentenceTranslation: "a",
-      SentenceAudio: "a",
-      MiscInfo: "a",
-      Picture: "<img src='a.jpg' />",
-    } as ContextField;
-    const extra = {
-      SentenceFurigana: "<ruby>foo</ruby>",
-      Sentence: "b",
-      SentenceTranslation: "b",
-      SentenceAudio: "b",
-      MiscInfo: "b",
-      Picture: "<img src='b.jpg' />",
-    } as ContextField;
-    const result = mergeContext(base, extra);
-    expect(result.SentenceFurigana).toBe("");
-  });
-
   it("merges picture fields with img selector", () => {
     const base = {
       Picture: '<img src="a.jpg" />',
       Sentence: "",
       SentenceTranslation: "",
-      SentenceFurigana: "",
       SentenceAudio: "",
       MiscInfo: "",
     } as ContextField;
@@ -75,7 +53,6 @@ describe("mergeContext", () => {
       Picture: '<img src="b.jpg" />',
       Sentence: "",
       SentenceTranslation: "",
-      SentenceFurigana: "",
       SentenceAudio: "",
       MiscInfo: "",
     } as ContextField;
@@ -90,7 +67,6 @@ describe("normalizeFields", () => {
     const fields = {
       Sentence: "hello world",
       SentenceTranslation: "你好世界",
-      SentenceFurigana: "",
       SentenceAudio: "",
       MiscInfo: "",
       Picture: "",
@@ -104,7 +80,6 @@ describe("normalizeFields", () => {
     const fields = {
       Sentence: '<span data-group-id="99">grouped</span> raw',
       SentenceTranslation: "",
-      SentenceFurigana: "",
       SentenceAudio: "",
       MiscInfo: "",
       Picture: "",
@@ -120,7 +95,6 @@ describe("normalizeFields", () => {
       noteId: 42,
       Sentence: "test",
       SentenceTranslation: "",
-      SentenceFurigana: "",
       SentenceAudio: "",
       MiscInfo: "",
       Picture: "",
@@ -136,7 +110,6 @@ describe("normalizeFields", () => {
       Picture: '<img src="test.jpg" />',
       Sentence: "",
       SentenceTranslation: "",
-      SentenceFurigana: "",
       SentenceAudio: "",
       MiscInfo: "",
     };
@@ -150,7 +123,6 @@ describe("normalizeFields", () => {
     const fields = {
       Sentence: "",
       SentenceTranslation: "",
-      SentenceFurigana: "",
       SentenceAudio: "",
       MiscInfo: "",
       Picture: "",
@@ -158,7 +130,6 @@ describe("normalizeFields", () => {
     const result = normalizeFields(fields);
     expect(result.Sentence).toBe("");
     expect(result.SentenceTranslation).toBe("");
-    expect(result.SentenceFurigana).toBe("");
     expect(result.SentenceAudio).toBe("");
     expect(result.MiscInfo).toBe("");
     expect(result.Picture).toBe("");
@@ -170,7 +141,6 @@ describe("parseMergedIntoReadable", () => {
     const fields = {
       Sentence: '<span data-group-id="1">foo</span><span data-group-id="2">bar</span>',
       SentenceTranslation: "",
-      SentenceFurigana: "",
       SentenceAudio: "",
       MiscInfo: "",
       Picture: "",
@@ -184,7 +154,6 @@ describe("parseMergedIntoReadable", () => {
     const fields = {
       Sentence: '<span data-group-id="1">a</span><span data-group-id="1">b</span>',
       SentenceTranslation: "",
-      SentenceFurigana: "",
       SentenceAudio: "",
       MiscInfo: "",
       Picture: "",
@@ -198,7 +167,6 @@ describe("parseMergedIntoReadable", () => {
       Picture: '<img data-group-id="1" src="cat.jpg" />',
       Sentence: "",
       SentenceTranslation: "",
-      SentenceFurigana: "",
       SentenceAudio: "",
       MiscInfo: "",
     };
@@ -210,7 +178,6 @@ describe("parseMergedIntoReadable", () => {
     const fields = {
       Sentence: "",
       SentenceTranslation: "",
-      SentenceFurigana: "",
       SentenceAudio: "",
       MiscInfo: "",
       Picture: "",
@@ -228,7 +195,6 @@ describe("toContextField", () => {
       fields: {
         Sentence: { value: "hello", order: 0 },
         SentenceTranslation: { value: "你好", order: 1 },
-        SentenceFurigana: { value: "hello", order: 2 },
         SentenceAudio: { value: "[sound:hello.mp3]", order: 3 },
         MiscInfo: { value: "test", order: 4 },
         Picture: { value: "<img src='x.jpg' />", order: 5 },
@@ -273,19 +239,6 @@ describe("filterTags", () => {
 });
 
 describe("removeAnkiInternalFields", () => {
-  it("removes furigana:/kana:/kanji: prefixed keys", () => {
-    const result = removeAnkiInternalFields({
-      "furigana:Sentence": "foo",
-      "kana:Sentence": "bar",
-      "kanji:Sentence": "baz",
-      Sentence: "hello",
-    });
-    expect(result).not.toHaveProperty("furigana:Sentence");
-    expect(result).not.toHaveProperty("kana:Sentence");
-    expect(result).not.toHaveProperty("kanji:Sentence");
-    expect(result).toHaveProperty("Sentence");
-  });
-
   it("removes Tags, CardID, __IS_ROOT__", () => {
     const result = removeAnkiInternalFields({
       Tags: "japanese",

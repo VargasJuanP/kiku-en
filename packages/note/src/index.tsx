@@ -353,7 +353,11 @@ export class KikuHostAnki extends KikuHost {
 
   setupAnkiDroidAPI() {
     const { logger } = this;
-    if (globalThis.KIKU_EN && !globalThis.KIKU_EN.ankiDroidAPI && typeof AnkiDroidJS !== "undefined") {
+    if (
+      globalThis.KIKU_EN &&
+      !globalThis.KIKU_EN.ankiDroidAPI &&
+      typeof AnkiDroidJS !== "undefined"
+    ) {
       globalThis.KIKU_EN.ankiDroidAPI = new AnkiDroidJS({
         version: "0.0.3",
         developer: "youyoumu",
@@ -383,7 +387,6 @@ export class KikuHostAnki extends KikuHost {
       themeDark: root.dataset.themeDark,
       blurNsfw: root.dataset.blurNsfw,
       pictureOnFront: root.dataset.pictureOnFront,
-      modVertical: root.dataset.modVertical,
     };
     logger.debug("[init] rootDataset:", rootDataset);
     return rootDataset;

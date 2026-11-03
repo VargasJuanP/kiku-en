@@ -39,7 +39,10 @@ class Script {
 
   async listPlugins(): Promise<string[]> {
     const entries = await readdir(paths["@/plugins/"], { withFileTypes: true });
-    return entries.filter((e) => e.isDirectory()).map((e) => e.name).sort();
+    return entries
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name)
+      .sort();
   }
 
   async run(mode: Mode, name: string) {
@@ -74,9 +77,7 @@ async function main() {
   const name = process.argv[3];
 
   if (mode !== "copy" && mode !== "symlink") {
-    console.error(
-      `Unknown or missing mode: "${mode}". Must be one of: copy, symlink.` + USAGE,
-    );
+    console.error(`Unknown or missing mode: "${mode}". Must be one of: copy, symlink.` + USAGE);
     for (const p of await new Script().listPlugins()) console.error(`  - ${p}`);
     process.exit(1);
   }

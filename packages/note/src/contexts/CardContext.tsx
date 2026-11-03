@@ -10,13 +10,12 @@ import type { JSX } from "solid-js/jsx-runtime";
 import { createStore, type SetStoreFunction, type Store } from "solid-js/store";
 import { createCompatPair } from "#/src/lib/context-compat";
 import { type AnkiFields, ankiFieldsSkeleton } from "#/src/lib/types";
-import type { KanjiPageContextStore } from "#/src/lazy/contexts/KanjiPageContext";
 import { useGeneralContext } from "./GeneralContext";
 import { useCardQuery, type $$Card } from "#/src/hooks/query";
 
 export type CardStore = {
   side: "front" | "back";
-  page: "main" | "settings" | "kanji" | "nested";
+  page: "main" | "settings" | "nested";
   ready: boolean;
   //TODO: remove
   isNsfw: boolean;
@@ -25,11 +24,6 @@ export type CardStore = {
   sentenceAudioRef?: HTMLDivElement;
   sentenceAudios?: HTMLAnchorElement[] | HTMLAudioElement[];
   pictureModal?: string;
-  initialFocus: {
-    kanji: string | undefined;
-    noteId: number | undefined;
-  };
-  initialTab: "kanji" | "reading" | "same" | "related";
   navigateBack: (() => void)[];
   nestedAnkiFields: AnkiFields;
   nestedNoteId: number | undefined;
@@ -43,7 +37,6 @@ type CardContextValue = {
   $initialSide: Accessor<CardStore["side"]>;
   $isInitialSide: Accessor<boolean>;
   $$card: $$Card;
-  onKanjiPageMount: Set<(ctx: { $setKanjiPage: SetStoreFunction<KanjiPageContextStore> }) => void>;
   nested: boolean;
   isMergePreview: boolean;
 };
@@ -69,11 +62,6 @@ export function CardStoreContextProvider(props: {
     sentenceAudioRef: undefined,
     sentenceAudios: undefined,
     pictureModal: undefined,
-    initialFocus: {
-      kanji: undefined,
-      noteId: undefined,
-    },
-    initialTab: "kanji",
     navigateBack: [],
     nestedAnkiFields: ankiFieldsSkeleton,
     nestedNoteId: undefined,
@@ -85,7 +73,6 @@ export function CardStoreContextProvider(props: {
   const $isInitialSide = createMemo(() => $initialSide() === $card.side);
   const nested = props.nested ?? false;
   const isMergePreview = props.isMergePreview ?? false;
-  const onKanjiPageMount: CardContextValue["onKanjiPageMount"] = new Set();
   const { $$card } = useCardQuery({ $card, $initialSide });
 
   createEffect(() => {
@@ -100,7 +87,6 @@ export function CardStoreContextProvider(props: {
       value={{
         $card,
         $setCard,
-        onKanjiPageMount,
         $initialSide,
         $isInitialSide,
         $$card,

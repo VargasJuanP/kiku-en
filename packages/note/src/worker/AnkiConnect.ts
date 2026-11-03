@@ -9,10 +9,12 @@ export function escapeRegex(s: string) {
 export class AnkiConnect {
   private fetchJson: MainThreadApi["fetchJson"];
   public ankiConnectAddress: string;
+  private noteType: string;
 
-  constructor(fetchJson: MainThreadApi["fetchJson"], ankiConnectAddress: string) {
+  constructor(fetchJson: MainThreadApi["fetchJson"], ankiConnectAddress: string, noteType: string) {
     this.fetchJson = fetchJson;
     this.ankiConnectAddress = ankiConnectAddress;
+    this.noteType = noteType;
   }
 
   async invoke(action: string, params: Record<string, unknown> = {}) {
@@ -43,28 +45,15 @@ export class AnkiConnect {
     })) as Array<AnkiNote[]>;
   }
 
+  /** Notes whose Expression is one of `expressionList`, or that list one of them as related. */
   async queryFieldContains({
-    kanjiList,
-    readingList,
     expressionList,
     withNewNotes = true,
   }: {
-    kanjiList: string[];
-    readingList: string[];
     expressionList: string[];
     withNewNotes?: boolean;
   }) {
-    const noteFilter = `("note:Kiku" OR "note:Lapis")`;
-
-    const kanjiPattern = kanjiList.map(escapeRegex).join("|");
-    const kanjiQuery =
-      kanjiList.length === 0 ? null : `${noteFilter} AND Expression:re:${kanjiPattern}`;
-
-    const readingPattern = readingList.map(escapeRegex).join("|");
-    const readingQuery =
-      readingList.length === 0
-        ? null
-        : `${noteFilter} AND ExpressionReading:re:^${readingPattern}$`;
+    const noteFilter = `"note:${this.noteType}"`;
 
     const expressionPattern = expressionList.map(escapeRegex).join("|");
     const expressionQuery =
@@ -74,7 +63,7 @@ export class AnkiConnect {
 
     const newQuery = `${noteFilter} AND is:new`;
 
-    const queries = [kanjiQuery, readingQuery, expressionQuery].filter(Boolean) as string[];
+    const queries = [expressionQuery].filter(Boolean) as string[];
     if (withNewNotes) queries.push(newQuery);
     const idsLists = await this.batchFindNotes(queries);
     const allIds = [...new Set(idsLists.flat())];
@@ -85,18 +74,7 @@ export class AnkiConnect {
       ? allNotes.filter((n) => newNoteIdsSet.has(n.noteId))
       : [];
 
-    const kanjiListResult: Record<string, AnkiNote[]> = {};
-    const readingListResult: Record<string, AnkiNote[]> = {};
     const expressionListResult: Record<string, AnkiNote[]> = {};
-
-    for (const k of kanjiList) {
-      kanjiListResult[k] = allNotes.filter((n) => n.fields.Expression?.value.includes(k));
-    }
-
-    for (const r of readingList) {
-      readingListResult[r] = allNotes.filter((n) => n.fields.ExpressionReading?.value === r);
-    }
-
     for (const e of expressionList) {
       expressionListResult[e] = allNotes.filter((n) => {
         if (n.fields.Expression?.value === e) return true;
@@ -109,11 +87,6 @@ export class AnkiConnect {
       });
     }
 
-    return {
-      kanjiListResult,
-      readingListResult,
-      expressionListResult,
-      newNotes,
-    };
+    return { expressionListResult, newNotes };
   }
 }

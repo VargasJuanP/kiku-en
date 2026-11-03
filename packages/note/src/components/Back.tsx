@@ -11,7 +11,6 @@ import { AnkiFieldContextProvider, useAnkiFieldContext } from "#/src/contexts/An
 import { CtxContextProvider } from "#/src/contexts/CtxContext";
 import { FieldGroupContextProvider } from "#/src/contexts/FieldGroupContext";
 import { useGeneralContext } from "#/src/contexts/GeneralContext";
-import { usePitch } from "#/src/hooks/pitch";
 import { ExpressionSection } from "./ExpressionSection";
 
 // oxfmt-ignore
@@ -24,8 +23,7 @@ const Lazy = {
   AudioElements: lazy(async () => ({ default: (await import("#/src/lazy")).AudioElements })),
   PictureModal: lazy(async () => ({ default: (await import("#/src/lazy")).PictureModal })),
   BackBody: lazy(async () => ({ default: (await import("#/src/lazy")).BackBody })),
-  Pitches: lazy(async () => ({ default: (await import("#/src/lazy")).Pitches })),
-  KanjiPage: lazy(async () => ({ default: (await import("#/src/lazy")).KanjiPage })),
+  Ipa: lazy(async () => ({ default: (await import("#/src/lazy")).Ipa })),
   UseAnkiDroid: lazy(async () => ({ default: (await import("#/src/lazy")).UseAnkiDroid })),
   Expression: lazy(async () => ({ default: (await import("#/src/lazy")).Expression })),
   AnkiMobileDebug: lazy(async () => ({ default: (await import("#/src/lazy")).AnkiMobileDebug })),
@@ -39,7 +37,6 @@ export function Back(props: { onExitNested?: () => void }) {
   const { $ankiFields, $isInitialAnkiFields } = useAnkiFieldContext();
   const loadPlugin = useLoadPlugin();
   const { logger } = useGeneralContext();
-  usePitch();
 
   onMount(() => {
     setTimeout(() => {
@@ -57,11 +54,11 @@ export function Back(props: { onExitNested?: () => void }) {
     ),
   );
 
-  const $pitchFieldDataset = createMemo<DatasetProp>(() => ({
-    "data-has-pitch": isServer
-      ? "{{#PitchPosition}}true{{/PitchPosition}}"
+  const $ipaFieldDataset = createMemo<DatasetProp>(() => ({
+    "data-has-ipa": isServer
+      ? "{{#ExpressionIPA}}true{{/ExpressionIPA}}"
       : $card.ready
-        ? $ankiFields.PitchPosition
+        ? $ankiFields.ExpressionIPA
           ? "true"
           : ""
         : "",
@@ -73,9 +70,6 @@ export function Back(props: { onExitNested?: () => void }) {
       <Switch>
         <Match when={$card.page === "settings" && $card.ready}>
           <Lazy.Settings />
-        </Match>
-        <Match when={$card.page === "kanji" && $card.ready}>
-          <Lazy.KanjiPage />
         </Match>
         <Match when={$card.page === "nested" && $card.ready}>
           <AnkiFieldContextProvider
@@ -120,10 +114,10 @@ export function Back(props: { onExitNested?: () => void }) {
               <div class="expression-audio-box">
                 <ExpressionSection />
                 <div
-                  class="mt-2 sm:mt-4 gap-4 pitch pitch-field min-h-lh"
-                  {...$pitchFieldDataset()}
+                  class="mt-2 sm:mt-4 gap-4 flex-wrap justify-center ipa ipa-field min-h-lh"
+                  {...$ipaFieldDataset()}
                 >
-                  {$ankiFields.PitchPosition && $card.ready && <Lazy.Pitches />}
+                  {$ankiFields.ExpressionIPA && $card.ready && <Lazy.Ipa />}
                 </div>
                 <div class="hidden sm:block sm:h-8 sm:mt-2">
                   {$card.ready && (

@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { describe, expect, it } from "vitest";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -22,7 +23,6 @@ describe("getTemplatePreview", () => {
         themeDark: "__DATA_THEME_DARK__",
         blurNsfw: "__DATA_BLUR_NSFW__",
         pictureOnFront: "__DATA_PICTURE_ON_FRONT__",
-        modVertical: "__DATA_MOD_VERTICAL__",
       }),
     ).toBe(getTemplateSnippet(frontHtml));
   });
@@ -36,7 +36,6 @@ describe("getTemplatePreview", () => {
         themeDark: "__DATA_THEME_DARK__",
         blurNsfw: "__DATA_BLUR_NSFW__",
         pictureOnFront: "__DATA_PICTURE_ON_FRONT__",
-        modVertical: "__DATA_MOD_VERTICAL__",
       }),
     ).toBe(getTemplateSnippet(backHtml));
   });

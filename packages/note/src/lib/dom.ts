@@ -160,8 +160,10 @@ function applySingleBold(html: string, boldText: string): string {
     const samePartialRuby =
       startRuby &&
       startRuby === endRuby &&
-      !(foundIdx === segments[foundSegStart].start &&
-        foundEndPos === segments[foundSegEnd].start + segLen(segments[foundSegEnd]));
+      !(
+        foundIdx === segments[foundSegStart].start &&
+        foundEndPos === segments[foundSegEnd].start + segLen(segments[foundSegEnd])
+      );
 
     if (startRuby && !samePartialRuby) {
       range.setStartBefore(startRuby);

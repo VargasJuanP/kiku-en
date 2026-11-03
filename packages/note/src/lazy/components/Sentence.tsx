@@ -14,7 +14,6 @@ import { useCtxContext } from "#/src/contexts/CtxContext";
 import { useFieldGroupContext } from "#/src/contexts/FieldGroupContext";
 import { useGeneralContext } from "#/src/contexts/GeneralContext";
 import { parseHtml } from "#/src/lib/dom";
-import { usePitch } from "#/src/hooks/pitch";
 
 export function Sentence() {
   const { $card } = useCardContext();
@@ -99,8 +98,7 @@ function SentenceFieldWithTranslation() {
 }
 
 function SentenceField() {
-  const { $card, $initialSide, $isInitialSide } = useCardContext();
-  const { $pitchType } = usePitch();
+  const { $card, $initialSide } = useCardContext();
   const { $group } = useFieldGroupContext();
   const { $ankiFields } = useAnkiFieldContext();
 
@@ -132,13 +130,6 @@ function SentenceField() {
     return true;
   });
 
-  const expressionPitchDataset = () => {
-    if ($initialSide() === "front" && $isInitialSide()) return {};
-    return {
-      "data-pitch-type": $pitchType(),
-    };
-  };
-
   return (
     <div
       class={`sentence font-secondary sentence-field`}
@@ -146,7 +137,6 @@ function SentenceField() {
         "animate-fade-in": $animateFadeIn(),
       }}
       innerHTML={$sentence()}
-      {...expressionPitchDataset()}
     ></div>
   );
 }

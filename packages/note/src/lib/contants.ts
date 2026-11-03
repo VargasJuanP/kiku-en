@@ -12,8 +12,6 @@ const assets = {
   "_kikuen_back.html": "_kikuen_back.html",
   "_kikuen_style.css": "_kikuen_style.css",
   "_kikuen_notes_manifest.json": "_kikuen_notes_manifest.json",
-  "_kikuen_db_main.tar": "_kikuen_db_main.tar",
-  "_kikuen_db_main_manifest.json": "_kikuen_db_main_manifest.json",
   "_kikuen_plugin.js": "_kikuen_plugin.js",
 
   "_kikuen.js": "_kikuen.js",
@@ -28,7 +26,7 @@ const assets = {
 export const constants = {
   VERSION: VERSION,
   COMMIT_SHA: COMMIT_SHA,
-  NOTE_TYPE: "Kiku",
+  NOTE_TYPE: "Kiku EN",
   CARD_TYPE: "Mining",
   key: {
     "kikuen-config": "kikuen-config",
@@ -36,10 +34,6 @@ export const constants = {
     "kikuen-latest-version-checked": "kikuen-latest-version-checked",
   },
   assets,
-  tar: {
-    "kiku_db_kanji_compact.json.gz": "kiku_db_kanji_compact.json.gz",
-    "kiku_db_terms_compact.json.gz": "kiku_db_terms_compact.json.gz",
-  },
   IMPORTANT_FILES: [
     assets["_kikuen.js"],
     assets["_kikuen_libs.js"],
@@ -54,8 +48,6 @@ export const constants = {
     assets["_kikuen_style.css"],
     assets["_kikuen.css"],
 
-    assets["_kikuen_db_main.tar"],
-    assets["_kikuen_db_main_manifest.json"],
     assets["_kikuen_notes_manifest.json"],
   ],
 };

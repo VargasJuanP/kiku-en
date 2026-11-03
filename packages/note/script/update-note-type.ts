@@ -11,7 +11,7 @@ import { paths } from "#/tools/paths.ts";
 import { AnkiConnect, log } from "#/tools/util.js";
 
 class Script {
-  NOTE_TYPE = "Kiku";
+  NOTE_TYPE = "Kiku EN";
   CARD_TYPE = "Mining";
   FRONT_PATH = paths["@/.anki-build/_kikuen_front.html"];
   BACK_PATH = paths["@/.anki-build/_kikuen_back.html"];
@@ -32,8 +32,7 @@ class Script {
       .replaceAll("__DATA_THEME__", defaultConfig.theme)
       .replaceAll("__DATA_THEME_DARK__", defaultConfig.themeDark)
       .replace("__DATA_BLUR_NSFW__", defaultConfig.blurNsfw.toString())
-      .replace("__DATA_PICTURE_ON_FRONT__", defaultConfig.pictureOnFront.toString())
-      .replace("__DATA_MOD_VERTICAL__", defaultConfig.modVertical.toString());
+      .replace("__DATA_PICTURE_ON_FRONT__", defaultConfig.pictureOnFront.toString());
   }
 
   buildStyleTemplate(styleSrc: string) {

@@ -54,19 +54,11 @@ class Script {
     await this.copyFiles(FILES, paths["@/.anki-build/"]);
   }
 
-  async copyDatabases() {
-    const DBS = ["_kikuen_db_main.tar", "_kikuen_db_main_manifest.json"];
-
-    console.log("\n📁 Copying DATABASES...");
-    await this.copyFiles(DBS, paths["@/.db/"]);
-  }
-
   async run() {
     console.log(`🔍 Checking Anki collection at: ${env.ANKI_COLLECTION_MEDIA_PATH}`);
     await this.ensureAnkiDir();
     await this.copyAssetsFromDistToAnkiBuild();
     await this.copyAnkiBuild();
-    await this.copyDatabases();
     console.log("\n🎉 Done!");
   }
 }

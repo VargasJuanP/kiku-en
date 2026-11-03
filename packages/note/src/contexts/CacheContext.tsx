@@ -5,8 +5,6 @@ import type { CacheStore } from "#/src/lib/types";
 const CacheContext = createContext<CacheStore>();
 
 export function CacheContextProvider(props: { children: JSX.Element; cacheStore: CacheStore }) {
-  props.cacheStore.kanjiInfo ??= new Map();
-
   return <CacheContext.Provider value={props.cacheStore}>{props.children}</CacheContext.Provider>;
 }
 

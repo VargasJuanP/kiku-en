@@ -50,6 +50,4 @@
     to { opacity: 0; transform: translateY(4px); }
   }
 
-  --color-pitch: inherit;
-  --color-pitch-content: inherit;
 }

@@ -342,10 +342,6 @@ function $Dialog(props: {
                 title="SentenceTranslation"
                 content={$$mergedReadable().SentenceTranslation}
               />
-              <FieldPreview
-                title="SentenceFurigana"
-                content={$$mergedReadable().SentenceFurigana}
-              />
               <FieldPreview title="SentenceAudio" content={$$mergedReadable().SentenceAudio} />
               <FieldPreview title="MiscInfo" content={$$mergedReadable().MiscInfo} />
               <FieldPreview title="Picture" content={$$mergedReadable().Picture} />

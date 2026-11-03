@@ -4,7 +4,6 @@ export function getTemplatePreview(options: {
   themeDark: string;
   blurNsfw: string;
   pictureOnFront: string;
-  modVertical: string;
 }): string {
   let template = `
 <kikuen-host-anki
@@ -23,7 +22,6 @@ export function getTemplatePreview(options: {
   data-theme-dark="__DATA_THEME_DARK__"
   data-blur-nsfw="__DATA_BLUR_NSFW__"
   data-picture-on-front="__DATA_PICTURE_ON_FRONT__"
-  data-mod-vertical="__DATA_MOD_VERTICAL__"
 >
 `.trim();
   template = template.replaceAll("__SIDE__", options.side);
@@ -31,6 +29,5 @@ export function getTemplatePreview(options: {
   template = template.replaceAll("__DATA_THEME_DARK__", options.themeDark);
   template = template.replaceAll("__DATA_BLUR_NSFW__", options.blurNsfw);
   template = template.replaceAll("__DATA_PICTURE_ON_FRONT__", options.pictureOnFront);
-  template = template.replaceAll("__DATA_MOD_VERTICAL__", options.modVertical);
   return template;
 }

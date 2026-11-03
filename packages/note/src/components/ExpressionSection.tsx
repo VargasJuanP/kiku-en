@@ -2,8 +2,6 @@ import { createMemo, Switch, Match, Suspense, lazy } from "solid-js";
 import { isServer } from "solid-js/web";
 import { useAnkiFieldContext } from "#/src/contexts/AnkiFieldsContext";
 import { useCardContext } from "#/src/contexts/CardContext";
-import { usePitch } from "#/src/hooks/pitch";
-import type { DatasetProp } from "#/src/lib/config";
 
 // oxfmt-ignore
 const Lazy = {
@@ -12,46 +10,29 @@ const Lazy = {
 
 export function ExpressionSection(props: { hideExpression?: boolean }) {
   const { $card, $initialSide, $isInitialSide, nested } = useCardContext();
-  const { $ankiFields, $isRootAnkiFields } = useAnkiFieldContext();
-  const { $pitchType } = usePitch();
+  const { $ankiFields } = useAnkiFieldContext();
   const $hideExpression = createMemo(() => props.hideExpression);
+
+  /** Sentence and audio cards hide the word on the front: it is what is being tested. */
+  const $isHiddenOnFront = createMemo(
+    () => $initialSide() === "front" && !!($ankiFields.IsSentenceCard || $ankiFields.IsAudioCard),
+  );
 
   const $expressionInnerHtml = createMemo(() => {
     if (isServer) return undefined;
-    if ($isRootAnkiFields() && $ankiFields.ExpressionFurigana && $initialSide() === "back") {
-      return $ankiFields["furigana:ExpressionFurigana"];
-    }
-    if ($initialSide() === "front" && ($ankiFields.IsSentenceCard || $ankiFields.IsAudioCard)) {
-      return "?";
-    }
+    if ($isHiddenOnFront()) return "?";
     return $ankiFields.Expression;
-  });
-
-  const $pitchFieldDataset = createMemo<DatasetProp>(() => {
-    if ($initialSide() === "front") return {};
-
-    function getPitchType() {
-      if (isServer) return "{{PitchCategories}}";
-      if ($card.ready) return $pitchType() ?? "";
-      return "";
-    }
-
-    return {
-      "data-pitch-type": getPitchType(),
-    };
   });
 
   return (
     <div
-      class="expression font-secondary text-center vertical-rl transition-colors text-pitch"
+      class="expression font-secondary text-center transition-colors text-base-content-primary"
       classList={{
         "border-b-2 border-dotted border-base-content-soft":
           $initialSide() === "front" && !!$ankiFields.IsClickCard && $isInitialSide(),
         "transition-opacity duration-1000 opacity-0":
           $initialSide() === "front" && $hideExpression() && $isInitialSide(),
-        "hide-rt": $initialSide() === "front" && $isInitialSide(),
       }}
-      {...$pitchFieldDataset()}
     >
       <Switch>
         <Match when={isServer}>
@@ -59,8 +40,8 @@ export function ExpressionSection(props: { hideExpression?: boolean }) {
             class="contents"
             innerHTML={
               $initialSide() === "front"
-                ? `{{#IsSentenceCard}} <span class="horizontal-tb">?</span> {{/IsSentenceCard}} {{#IsAudioCard}} <span class="horizontal-tb">?</span> {{/IsAudioCard}} {{^IsSentenceCard}} {{^IsAudioCard}} {{Expression}} {{/IsAudioCard}} {{/IsSentenceCard}}`
-                : "{{#ExpressionFurigana}}{{furigana:ExpressionFurigana}}{{/ExpressionFurigana}}{{^ExpressionFurigana}}{{Expression}}{{/ExpressionFurigana}}"
+                ? "{{#IsSentenceCard}}?{{/IsSentenceCard}}{{#IsAudioCard}}?{{/IsAudioCard}}{{^IsSentenceCard}}{{^IsAudioCard}}{{Expression}}{{/IsAudioCard}}{{/IsSentenceCard}}"
+                : "{{Expression}}"
             }
           ></div>
         </Match>
@@ -71,15 +52,8 @@ export function ExpressionSection(props: { hideExpression?: boolean }) {
             innerHTML={$expressionInnerHtml()}
           ></div>
         </Match>
-        <Match
-          when={
-            $card.ready &&
-            $initialSide() === "front" &&
-            $isInitialSide() &&
-            ($ankiFields.IsSentenceCard || $ankiFields.IsAudioCard)
-          }
-        >
-          <span class="horizontal-tb">?</span>
+        <Match when={$card.ready && $isHiddenOnFront() && $isInitialSide()}>
+          <span>?</span>
         </Match>
         <Match when={$card.ready}>
           <Suspense fallback={<div class="contents" innerHTML={$expressionInnerHtml()}></div>}>

@@ -73,7 +73,7 @@
 
   .sentence-field {
     b {
-      color: var(--color-pitch, var(--color-base-content-primary));
+      color: var(--color-base-content-primary);
     }
     ruby rt {
       visibility: hidden;
@@ -83,25 +83,11 @@
     }
   }
 
-  .pitch-field {
+  .ipa-field {
     display: none;
-    &[data-has-pitch="true"] {
+    &[data-has-ipa="true"] {
       display: flex;
     }
-  }
-
-  .pitch-segment {
-    padding-inline-end: 0.25rem;
-    position: relative;
-  }
-  .pitch-segment::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 2px;
-    height: 8px;
-    background-color: var(--color-pitch);
   }
 
   .hint-field {

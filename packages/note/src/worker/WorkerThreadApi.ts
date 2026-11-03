@@ -2,20 +2,17 @@ import "#/src/lib/polyfill";
 import type { KikuConfig } from "#/src/lib/config";
 import type { Constants } from "#/src/lib/contants";
 import { parseRelatedExpression } from "#/src/lib/parse-related-expression";
-import type {
-  AnkiFields,
-  AnkiNote,
-  KanjiInfo,
-  KanjiInfoCompact,
-  KikuDbMainManifest,
-  KikuNotesManifest,
-  TermInfo,
-  TermInfoCompact,
-} from "#/src/lib/types";
+import type { AnkiFields, AnkiNote, KikuNotesManifest } from "#/src/lib/types";
 
 import { AnkiConnect } from "./AnkiConnect";
 import { type NexRemote } from "./nex";
 import type { MainThreadApi } from "./MainThreadApi";
+
+type QueryResult = {
+  expressionResult: Record<string, AnkiNote[]>;
+  newNotes: AnkiNote[];
+  isNotesCache: boolean;
+};
 
 export class WorkerThreadApi {
   main!: NexRemote<MainThreadApi>;
@@ -43,31 +40,27 @@ export class WorkerThreadApi {
     this.constants = payload.constants;
     this.config = payload.config;
     this.preferAnkiConnect = payload.preferAnkiConnect;
-    this.ankiConnect = new AnkiConnect(this.main.fetchJson, this.config.ankiConnectAddress);
+    this.ankiConnect = new AnkiConnect(
+      this.main.fetchJson,
+      this.config.ankiConnectAddress,
+      this.constants.NOTE_TYPE,
+    );
   }
 
   chunkCache = new Map<string, AnkiNote[]>();
+  /** Notes whose Expression is one of `expressionList`, or that list one of them as related. */
   async query({
-    kanjiList,
-    readingList,
     expressionList,
     withNewNotes = true,
   }: {
-    kanjiList: string[];
-    readingList: string[];
     expressionList: string[];
     withNewNotes?: boolean;
   }) {
     const queryWithNotesCache = async () => {
-      const kanjiListResult: Record<string, AnkiNote[]> = {};
-      const readingListResult: Record<string, AnkiNote[]> = {};
       const expressionListResult: Record<string, AnkiNote[]> = {};
       const newNotes: AnkiNote[] = [];
 
       const manifest = await this.notesManifest();
-
-      const kanjiSet = new Set(kanjiList);
-      const readingSet = new Set(readingList);
       const expressionSet = new Set(expressionList);
 
       await Promise.all(
@@ -84,25 +77,10 @@ export class WorkerThreadApi {
         if (!notes) continue;
 
         for (const note of notes) {
-          if (note.modelName !== "Kiku" && note.modelName !== "Lapis") continue;
+          if (note.modelName !== this.constants.NOTE_TYPE) continue;
 
           const expr = note.fields.Expression.value;
-          const reading = note.fields.ExpressionReading?.value ?? "";
           const relatedExprValue = note.fields.RelatedExpression?.value ?? "";
-
-          // ------- Kanji Search (contains) -------
-          for (const kanji of kanjiSet) {
-            if (expr.includes(kanji)) {
-              kanjiListResult[kanji] ??= [];
-              kanjiListResult[kanji].push(note);
-            }
-          }
-
-          // ------- Reading Search (exact) -------
-          if (readingSet.has(reading)) {
-            readingListResult[reading] ??= [];
-            readingListResult[reading].push(note);
-          }
 
           // ------- Expression Search (exact) -------
           if (expressionSet.has(expr)) {
@@ -112,8 +90,7 @@ export class WorkerThreadApi {
 
           // ------- Related Expression Search (contains) -------
           if (relatedExprValue) {
-            const relatedExprs = parseRelatedExpression(relatedExprValue);
-            for (const rel of relatedExprs) {
+            for (const rel of parseRelatedExpression(relatedExprValue)) {
               if (expressionSet.has(rel)) {
                 expressionListResult[rel] ??= [];
                 if (!expressionListResult[rel].includes(note)) {
@@ -125,31 +102,19 @@ export class WorkerThreadApi {
         }
       }
 
-      return {
-        kanjiListResult,
-        readingListResult,
-        expressionListResult,
-        newNotes,
-      };
+      return { expressionListResult, newNotes };
     };
 
-    let result: {
-      kanjiListResult: Record<string, AnkiNote[]>;
-      readingListResult: Record<string, AnkiNote[]>;
-      expressionListResult: Record<string, AnkiNote[]>;
-      newNotes: AnkiNote[];
-    };
+    const queryWithAnkiConnect = () =>
+      this.ankiConnect.queryFieldContains({ expressionList, withNewNotes });
+
+    let result: { expressionListResult: Record<string, AnkiNote[]>; newNotes: AnkiNote[] };
     let isNotesCache: boolean;
 
     if (this.preferAnkiConnect) {
       try {
         void this.log.info("Querying with AnkiConnect");
-        result = await this.ankiConnect.queryFieldContains({
-          kanjiList,
-          readingList,
-          expressionList,
-          withNewNotes,
-        });
+        result = await queryWithAnkiConnect();
         isNotesCache = false;
       } catch {
         void this.log.warn("Failed to query with AnkiConnect, falling back to notes cache");
@@ -163,53 +128,32 @@ export class WorkerThreadApi {
         isNotesCache = true;
       } catch {
         void this.log.warn("Failed to query with notes cache, falling back to AnkiConnect");
-        result = await this.ankiConnect.queryFieldContains({
-          kanjiList,
-          readingList,
-          expressionList,
-          withNewNotes,
-        });
+        result = await queryWithAnkiConnect();
         isNotesCache = false;
       }
     }
 
-    const sort = (res: Record<string, AnkiNote[]>) => {
-      for (const key in res) {
-        res[key].sort((a, b) => b.noteId - a.noteId);
-      }
-    };
-
-    sort(result.kanjiListResult);
-    sort(result.readingListResult);
-    sort(result.expressionListResult);
+    for (const key in result.expressionListResult) {
+      result.expressionListResult[key].sort((a, b) => b.noteId - a.noteId);
+    }
 
     return { ...result, isNotesCache };
   }
+
   debounceTimer: ReturnType<typeof setTimeout> | null = null;
   debounceMs = 200;
+  /** Batches the queries of cards rendered at the same time (e.g. a note and its related notes). */
   async queryShared({
-    kanjiList,
-    readingList,
     expressionList,
     ankiFields,
     withNewNotes = true,
   }: {
-    kanjiList: string[];
-    readingList?: string[];
     expressionList?: string[];
     ankiFields: AnkiFields;
     withNewNotes?: boolean;
   }) {
-    return new Promise<{
-      kanjiResult: Record<string, AnkiNote[]>;
-      readingResult: Record<string, AnkiNote[]>;
-      expressionResult: Record<string, AnkiNote[]>;
-      newNotes: AnkiNote[];
-      isNotesCache: boolean;
-    }>((resolve, reject) => {
+    return new Promise<QueryResult>((resolve, reject) => {
       this.pendingQueryShared.push({
-        kanjiList,
-        readingList: readingList ?? [],
         expressionList: expressionList ?? [],
         ankiFields,
         withNewNotes,
@@ -226,160 +170,34 @@ export class WorkerThreadApi {
   }
 
   pendingQueryShared: {
-    kanjiList: string[];
-    readingList: string[];
     expressionList: string[];
     ankiFields: AnkiFields;
     withNewNotes: boolean;
-    resolve: (v: {
-      kanjiResult: Record<string, AnkiNote[]>;
-      readingResult: Record<string, AnkiNote[]>;
-      expressionResult: Record<string, AnkiNote[]>;
-      newNotes: AnkiNote[];
-      isNotesCache: boolean;
-    }) => void;
+    resolve: (v: QueryResult) => void;
   }[] = [];
 
   async actualQueryShared() {
     const requests = this.pendingQueryShared;
     this.pendingQueryShared = [];
 
-    const batchedKanjiList = [...new Set(requests.flatMap((r) => r.kanjiList))];
-    const batchedReadingList = [...new Set(requests.flatMap((r) => r.readingList))];
     const batchedExpressionList = [...new Set(requests.flatMap((r) => r.expressionList))];
     const needsNewNotes = requests.some((r) => r.withNewNotes);
 
-    const { kanjiListResult, readingListResult, expressionListResult, newNotes, isNotesCache } =
-      await this.query({
-        kanjiList: batchedKanjiList,
-        readingList: batchedReadingList,
-        expressionList: batchedExpressionList,
-        withNewNotes: needsNewNotes,
-      });
+    const { expressionListResult, newNotes, isNotesCache } = await this.query({
+      expressionList: batchedExpressionList,
+      withNewNotes: needsNewNotes,
+    });
 
-    for (const req of requests) {
-      const { kanjiList, readingList, expressionList, ankiFields } = req;
+    for (const { expressionList, ankiFields, resolve } of requests) {
+      const isOtherNote = (note: AnkiNote) => !note.cards.includes(Number(ankiFields.CardID));
 
-      const filterSameNote = (note: AnkiNote) => {
-        if (note.cards.includes(Number(ankiFields.CardID))) return false;
-        return true;
-      };
-      const filterSameExpression = (note: AnkiNote) => {
-        return note.fields.Expression.value !== ankiFields.Expression;
-      };
-
-      // --- kanji ---
-      const kanjiResult: Record<string, AnkiNote[]> = {};
-      for (const kanji of kanjiList) {
-        kanjiResult[kanji] =
-          kanjiListResult[kanji]?.filter(filterSameNote).filter(filterSameExpression) ?? [];
-      }
-
-      // --- reading ---
-      const readingResult: Record<string, AnkiNote[]> = {};
-      for (const reading of readingList) {
-        readingResult[reading] =
-          readingListResult[reading]?.filter(filterSameNote).filter(filterSameExpression) ?? [];
-      }
-
-      // --- expression ---
       const expressionResult: Record<string, AnkiNote[]> = {};
       for (const expression of expressionList) {
-        expressionResult[expression] =
-          expressionListResult[expression]?.filter(filterSameNote) ?? [];
+        expressionResult[expression] = expressionListResult[expression]?.filter(isOtherNote) ?? [];
       }
 
-      req.resolve({
-        kanjiResult,
-        readingResult,
-        expressionResult,
-        newNotes,
-        isNotesCache,
-      });
+      resolve({ expressionResult, newNotes, isNotesCache });
     }
-  }
-
-  lookupKanjiPromise: PromiseWithResolvers<Record<string, KanjiInfo>> | undefined;
-  async lookupKanji(kanji: string): Promise<KanjiInfo | undefined> {
-    const key = this.lookupKanji.name;
-    const cached = this.cache.get(key);
-    let result: KanjiInfo | undefined;
-    if (cached) {
-      result = cached[kanji];
-    } else if (this.lookupKanjiPromise) {
-      result = (await this.lookupKanjiPromise.promise)[kanji];
-    } else {
-      this.lookupKanjiPromise = Promise.withResolvers();
-      const manifest = await this.dbMainManifest();
-      const file = manifest.files[this.constants.tar["kiku_db_kanji_compact.json.gz"]];
-      const buf = await this.main.fetchArrayBuffer(
-        `${this.assetsPath}/${this.constants.assets["_kikuen_db_main.tar"]}`,
-        { headers: { Range: `bytes=${file.start}-${file.end}` } },
-        { range: { start: file.start, end: file.end, size: file.size } },
-      );
-
-      const text = await gunzipArrayBuffer(buf).text();
-      const dbKanjiCompact = JSON.parse(text);
-      const dbKanji: Record<string, KanjiInfo> = {};
-      for (const kanji of Object.keys(dbKanjiCompact)) {
-        const data = fromCompact(dbKanjiCompact[kanji]);
-        if (data) dbKanji[kanji] = data;
-      }
-      this.cache.set(key, dbKanji);
-      this.lookupKanjiPromise.resolve(dbKanji);
-      result = dbKanji[kanji];
-    }
-    return result;
-  }
-
-  lookupTermPromise: PromiseWithResolvers<Record<string, TermInfo>> | undefined;
-  async lookupTerm(term: string): Promise<TermInfo | undefined> {
-    const key = this.lookupTerm.name;
-    const cached = this.cache.get(key);
-    let result: TermInfo | undefined;
-    if (cached) {
-      result = cached[term];
-    } else if (this.lookupTermPromise) {
-      result = (await this.lookupTermPromise.promise)[term];
-    } else {
-      this.lookupTermPromise = Promise.withResolvers();
-      const manifest = await this.dbMainManifest();
-      const file = manifest.files[this.constants.tar["kiku_db_terms_compact.json.gz"]];
-      const buf = await this.main.fetchArrayBuffer(
-        `${this.assetsPath}/${this.constants.assets["_kikuen_db_main.tar"]}`,
-        { headers: { Range: `bytes=${file.start}-${file.end}` } },
-        { range: { start: file.start, end: file.end, size: file.size } },
-      );
-
-      const text = await gunzipArrayBuffer(buf).text();
-      const dbTermsCompact = JSON.parse(text);
-      const dbTerms: Record<string, TermInfo> = {};
-      for (const term of Object.keys(dbTermsCompact)) {
-        const data = fromCompactTerm(dbTermsCompact[term]);
-        if (data) dbTerms[term] = data;
-      }
-      this.cache.set(key, dbTerms);
-      this.lookupTermPromise.resolve(dbTerms);
-      result = dbTerms[term];
-    }
-    return result;
-  }
-
-  async dbMainManifest(): Promise<KikuDbMainManifest> {
-    const key = this.dbMainManifest.name;
-    if (this.cache.has(key)) return this.cache.get(key);
-    let manifest: KikuDbMainManifest;
-    try {
-      manifest = (await this.main.fetchJson(
-        `${this.assetsPath}/${this.constants.assets["_kikuen_db_main_manifest.json"]}`,
-        { cache: "no-store" },
-      )) as KikuDbMainManifest;
-    } catch {
-      void this.log.error("Failed to load db main manifest");
-      throw new Error("Failed to load db main manifest");
-    }
-    this.cache.set(key, manifest);
-    return manifest;
   }
 
   async notesManifest(): Promise<KikuNotesManifest> {
@@ -410,29 +228,4 @@ function gunzipArrayBuffer(buf: ArrayBuffer) {
   const ds = new DecompressionStream("gzip");
   const decompressed = res.body.pipeThrough(ds);
   return new Response(decompressed);
-}
-
-function fromCompact(c: KanjiInfoCompact | undefined): KanjiInfo | undefined {
-  if (!c) return undefined;
-  return {
-    composedOf: c[0],
-    usedIn: c[1],
-    wkMeaning: c[2],
-    meanings: c[3],
-    keyword: c[4],
-    readings: c[5],
-    frequency: c[6],
-    kind: c[7],
-    visuallySimilar: c[8],
-    related: c[9],
-  };
-}
-
-function fromCompactTerm(c: TermInfoCompact | undefined): TermInfo | undefined {
-  if (!c) return undefined;
-  return {
-    forms: c[0],
-    antonym: c[1],
-    referenced: c[2],
-  };
 }

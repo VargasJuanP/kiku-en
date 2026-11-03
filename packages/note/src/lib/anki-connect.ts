@@ -72,14 +72,12 @@ export const AnkiConnect = {
       .replaceAll("__DATA_THEME__", config.theme)
       .replaceAll("__DATA_THEME_DARK__", config.themeDark)
       .replace("__DATA_BLUR_NSFW__", config.blurNsfw.toString())
-      .replace("__DATA_PICTURE_ON_FRONT__", config.pictureOnFront.toString())
-      .replace("__DATA_MOD_VERTICAL__", config.modVertical.toString());
+      .replace("__DATA_PICTURE_ON_FRONT__", config.pictureOnFront.toString());
     const backTemplate = backSrc
       .replaceAll("__DATA_THEME__", config.theme)
       .replaceAll("__DATA_THEME_DARK__", config.themeDark)
       .replace("__DATA_BLUR_NSFW__", config.blurNsfw.toString())
-      .replace("__DATA_PICTURE_ON_FRONT__", config.pictureOnFront.toString())
-      .replace("__DATA_MOD_VERTICAL__", config.modVertical.toString());
+      .replace("__DATA_PICTURE_ON_FRONT__", config.pictureOnFront.toString());
     const cssVar = getCssVar(config);
     const cssVarDark = getCssVarDark(config);
     const cssVarTemplate = generateCssVars(cssVar);

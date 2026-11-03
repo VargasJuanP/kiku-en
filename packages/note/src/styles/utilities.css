@@ -1,8 +1,4 @@
 @layer utilities {
-  [data-mod-vertical="true"] .vertical-rl {
-    writing-mode: vertical-rl;
-  }
-
   .hide-rt {
     @apply [&_rt]:hidden;
   }

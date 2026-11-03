@@ -155,66 +155,17 @@ export function Settings() {
 }
 
 function KikuIcon() {
-  const [$$latestVersion] = createResource(async () => {
-    const cached = sessionStorage.getItem(constants.key["kikuen-latest-version"]);
-    if (cached) return cached;
-
-    const checked = sessionStorage.getItem(constants.key["kikuen-latest-version-checked"]);
-    if (checked) return null;
-    sessionStorage.setItem(constants.key["kikuen-latest-version-checked"], "true");
-
-    const res = await fetch("https://api.github.com/repos/youyoumu/kiku/releases/latest");
-    if (!res.ok) return null;
-    const data = await res.json();
-    const tag_name = data?.tag_name;
-    const version = tag_name?.replace(/^v/, "");
-    if (!version) return null;
-    sessionStorage.setItem(constants.key["kikuen-latest-version"], version);
-    return version;
-  });
-
   return (
     <div class="flex flex-col items-center text-base-content-faint justify-center">
       <div class="text-base-content-subtle-200 text-6xl">菊</div>
-      <div class="flex items-center gap-1.5">
-        <KikuVersion latestVersion={$$latestVersion.state === "ready" ? $$latestVersion() : null} />
+      <div class="flex items-center gap-2 text-sm">
+        <span>Kiku EN v{constants.VERSION}</span>
+        <span class="text-xs">({constants.COMMIT_SHA.slice(0, 7)})</span>
       </div>
+      <a href="https://github.com/youyoumu/kiku" target="_blank" rel="noreferrer" class="text-xs">
+        Based on Kiku by youyoumu
+      </a>
     </div>
-  );
-}
-
-function KikuVersion(props: { latestVersion?: string | null }) {
-  const $version = createMemo(() =>
-    props.latestVersion && props.latestVersion !== constants.VERSION ? props.latestVersion : null,
-  );
-  return (
-    <>
-      <div
-        classList={{ tooltip: !!$version() }}
-        class="tooltip-bottom tooltip-info flex gap-2 items-center"
-        data-tip={$version() ? `Update Available: v${$version()}` : undefined}
-      >
-        <a
-          href="https://github.com/youyoumu/kiku/releases/latest"
-          target="_blank"
-          rel="noreferrer"
-          class="text-sm"
-        >
-          Kiku Note v{constants.VERSION}
-        </a>
-        <a
-          href={`https://github.com/youyoumu/kiku/commit/${constants.COMMIT_SHA}`}
-          target="_blank"
-          rel="noreferrer"
-          class="text-xs"
-        >
-          ({constants.COMMIT_SHA.slice(0, 7)})
-        </a>
-      </div>
-      <Show when={$version()}>
-        <span class="status status-info"></span>
-      </Show>
-    </>
   );
 }
 
@@ -291,7 +242,7 @@ function RelatedExpressionSettings() {
         <ToggleSetting
           configKey="relatedExpressionFallback"
           label="Fallback"
-          tooltip="When disabled, only show explicitly related expressions without fallback to same expression, reading, forms, antonym, or referenced"
+          tooltip="When disabled, only show explicitly related expressions, without falling back to other cards for the same word"
         />
       </div>
     </Section>
@@ -354,17 +305,6 @@ function ModSettings() {
             values={[1000, 2000, 3000, 4000, 5000]}
             labels={["1s", "2s", "3s", "4s", "5s"]}
           />
-        </div>
-      </div>
-      <div>
-        <div class="text-lg font-bold flex gap-2 items-center">
-          Vertical
-          <div class="tooltip" data-tip="Expression appears in the vertical direction">
-            <InfoIcon class="size-4 text-base-content-calm" />
-          </div>
-        </div>
-        <div class="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] rounded-box gap-2 sm:gap-4">
-          <ToggleSetting configKey="modVertical" label="Enable" />
         </div>
       </div>
     </Section>
@@ -526,7 +466,7 @@ function FontSizeSettings() {
             <div class="text-lg font-bold">Mobile</div>
             <div class="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] rounded-box gap-x-4 gap-y-4 sm:gap-y-2">
               <FontSizeRangeSetting configKey="fontSizeBaseExpression" label="Expression" />
-              <FontSizeRangeSetting configKey="fontSizeBasePitch" label="Pitch" />
+              <FontSizeRangeSetting configKey="fontSizeBaseIpa" label="IPA" />
               <FontSizeRangeSetting configKey="fontSizeBaseSentence" label="Sentence" />
               <FontSizeRangeSetting configKey="fontSizeBaseMiscInfo" label="Misc Info" />
               <FontSizeRangeSetting configKey="fontSizeBaseHint" label="Hint" />
@@ -536,7 +476,7 @@ function FontSizeSettings() {
             <div class="text-lg font-bold">Desktop</div>
             <div class="grid grid-cols-[repeat(auto-fit,minmax(20rem,1fr))] rounded-box gap-x-4 gap-y-4 sm:gap-y-2">
               <FontSizeRangeSetting configKey="fontSizeSmExpression" label="Expression" />
-              <FontSizeRangeSetting configKey="fontSizeSmPitch" label="Pitch" />
+              <FontSizeRangeSetting configKey="fontSizeSmIpa" label="IPA" />
               <FontSizeRangeSetting configKey="fontSizeSmSentence" label="Sentence" />
               <FontSizeRangeSetting configKey="fontSizeSmMiscInfo" label="Misc Info" />
               <FontSizeRangeSetting configKey="fontSizeSmHint" label="Hint" />
@@ -566,7 +506,7 @@ function FontSizeRangeSetting(props: { configKey: NumStrConfigKey; label: string
               "line-height": tailwindFontSizeVar[$value()].lineHeight,
             }}
           >
-            あ
+            Aa
           </div>
         );
       }}
@@ -693,7 +633,6 @@ function DebugSettings() {
       themeDark: dataset.themeDark?.toString() ?? "",
       blurNsfw: dataset.blurNsfw?.toString() ?? "",
       pictureOnFront: dataset.pictureOnFront?.toString() ?? "",
-      modVertical: dataset.modVertical?.toString() ?? "",
     });
   });
 

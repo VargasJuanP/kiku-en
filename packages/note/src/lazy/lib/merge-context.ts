@@ -6,7 +6,6 @@ export type ContextField = {
   noteId?: number;
   Sentence: string;
   SentenceTranslation: string;
-  SentenceFurigana: string;
   SentenceAudio: string;
   MiscInfo: string;
   Picture: string;
@@ -17,16 +16,9 @@ export function mergeContext(base: ContextField, extra: ContextField): ContextFi
   const normalizedBase = normalizeFields(base);
   const normalizedExtra = normalizeFields(extra);
 
-  // if one of them is empty, delete both
-  const getSentenceFurigana = () => {
-    if (!normalizedBase.SentenceFurigana || !normalizedExtra.SentenceFurigana) return "";
-    return normalizedBase.SentenceFurigana + normalizedExtra.SentenceFurigana;
-  };
-
   const merged = {
     Sentence: normalizedBase.Sentence + normalizedExtra.Sentence,
     SentenceTranslation: normalizedBase.SentenceTranslation + normalizedExtra.SentenceTranslation,
-    SentenceFurigana: getSentenceFurigana(),
     SentenceAudio: normalizedBase.SentenceAudio + normalizedExtra.SentenceAudio,
     MiscInfo: normalizedBase.MiscInfo + normalizedExtra.MiscInfo,
     Picture: normalizedBase.Picture + normalizedExtra.Picture,
@@ -35,7 +27,6 @@ export function mergeContext(base: ContextField, extra: ContextField): ContextFi
   const doc = {
     sentence: parseHtml(merged.Sentence),
     sentenceTranslation: parseHtml(merged.SentenceTranslation),
-    sentenceFurigana: parseHtml(merged.SentenceFurigana),
     sentenceAudio: parseHtml(merged.SentenceAudio),
     miscInfo: parseHtml(merged.MiscInfo),
     picture: parseHtml(merged.Picture),
@@ -44,7 +35,6 @@ export function mergeContext(base: ContextField, extra: ContextField): ContextFi
   const withGroup = {
     sentence: doc.sentence.querySelectorAll("[data-group-id]"),
     sentenceTranslation: doc.sentenceTranslation.querySelectorAll("[data-group-id]"),
-    sentenceFurigana: doc.sentenceFurigana.querySelectorAll("[data-group-id]"),
     sentenceAudio: doc.sentenceAudio.querySelectorAll("[data-group-id]"),
     miscInfo: doc.miscInfo.querySelectorAll("[data-group-id]"),
     picture: doc.picture.querySelectorAll("img[data-group-id]"),
@@ -60,7 +50,6 @@ export function mergeContext(base: ContextField, extra: ContextField): ContextFi
 
   merged.Sentence = nodesToString(sortGroup(withGroup.sentence));
   merged.SentenceTranslation = nodesToString(sortGroup(withGroup.sentenceTranslation));
-  merged.SentenceFurigana = nodesToString(sortGroup(withGroup.sentenceFurigana));
   merged.SentenceAudio = nodesToString(sortGroup(withGroup.sentenceAudio));
   merged.MiscInfo = nodesToString(sortGroup(withGroup.miscInfo));
   merged.Picture = nodesToString(sortGroup(withGroup.picture));
@@ -75,7 +64,6 @@ export function normalizeFields(fields: ContextField): ContextField {
   const doc = {
     sentence: parseHtml(fields.Sentence),
     sentenceTranslation: parseHtml(fields.SentenceTranslation),
-    sentenceFurigana: parseHtml(fields.SentenceFurigana),
     sentenceAudio: parseHtml(fields.SentenceAudio),
     miscInfo: parseHtml(fields.MiscInfo),
     picture: parseHtml(fields.Picture),
@@ -84,7 +72,6 @@ export function normalizeFields(fields: ContextField): ContextField {
   const withGroup = {
     sentence: Array.from(doc.sentence.querySelectorAll("[data-group-id]")),
     sentenceTranslation: Array.from(doc.sentenceTranslation.querySelectorAll("[data-group-id]")),
-    sentenceFurigana: Array.from(doc.sentenceFurigana.querySelectorAll("[data-group-id]")),
     sentenceAudio: Array.from(doc.sentenceAudio.querySelectorAll("[data-group-id]")),
     miscInfo: Array.from(doc.miscInfo.querySelectorAll("[data-group-id]")),
     picture: Array.from(doc.picture.querySelectorAll("img[data-group-id]")),
@@ -94,7 +81,6 @@ export function normalizeFields(fields: ContextField): ContextField {
   const withoutGroup = {
     sentence: Array.from(doc.sentence.body.childNodes).filter( (el) => !(el as HTMLSpanElement).dataset?.groupId,),
     sentenceTranslation: Array.from(doc.sentenceTranslation.body.childNodes).filter( (el) => !(el as HTMLSpanElement).dataset?.groupId,),
-    sentenceFurigana: Array.from(doc.sentenceFurigana.body.childNodes).filter( (el) => !(el as HTMLSpanElement).dataset?.groupId,),
     sentenceAudio: Array.from(doc.sentenceAudio.body.childNodes).filter( (el) => !(el as HTMLSpanElement).dataset?.groupId,),
     miscInfo: Array.from(doc.miscInfo.body.childNodes).filter( (el) => !(el as HTMLSpanElement).dataset?.groupId,),
     picture: Array.from(doc.picture.querySelectorAll("img:not([data-group-id])")),
@@ -121,8 +107,6 @@ export function normalizeFields(fields: ContextField): ContextField {
   const Sentence = nodesToString(withGroup.sentence) + wrapInSpan(withoutGroup.sentence);
   const SentenceTranslation =
     nodesToString(withGroup.sentenceTranslation) + wrapInSpan(withoutGroup.sentenceTranslation);
-  const SentenceFurigana =
-    nodesToString(withGroup.sentenceFurigana) + wrapInSpan(withoutGroup.sentenceFurigana);
   const SentenceAudio =
     nodesToString(withGroup.sentenceAudio) + wrapInSpan(withoutGroup.sentenceAudio);
   const MiscInfo = nodesToString(withGroup.miscInfo) + wrapInSpan(withoutGroup.miscInfo);
@@ -131,7 +115,6 @@ export function normalizeFields(fields: ContextField): ContextField {
   return {
     Sentence,
     SentenceTranslation,
-    SentenceFurigana,
     SentenceAudio,
     MiscInfo,
     Picture,
@@ -169,18 +152,15 @@ export function parseMergedIntoReadable(fields: ContextField) {
   const result = {
     sentence: extractGroupedText(fields.Sentence, "[data-group-id]", (n) => n.textContent),
     sentenceTranslation: extractGroupedText( fields.SentenceTranslation, "[data-group-id]", (n) => n.textContent,),
-    sentenceFurigana: extractGroupedText( fields.SentenceFurigana, "[data-group-id]", (n) => n.textContent,),
     sentenceAudio: extractGroupedText( fields.SentenceAudio, "[data-group-id]", (n) => n.textContent,),
     miscInfo: extractGroupedText(fields.MiscInfo, "[data-group-id]", (n) => n.textContent),
     picture: extractGroupedText(fields.Picture, "img[data-group-id]", (n) => n.getAttribute("src")),
   };
-  const { sentence, sentenceTranslation, sentenceFurigana, sentenceAudio, miscInfo, picture } =
-    result;
+  const { sentence, sentenceTranslation, sentenceAudio, miscInfo, picture } = result;
 
   return {
     Sentence: sentence.text,
     SentenceTranslation: sentenceTranslation.text,
-    SentenceFurigana: sentenceFurigana.text,
     SentenceAudio: sentenceAudio.text,
     MiscInfo: miscInfo.text,
     Picture: picture.text,
@@ -188,7 +168,6 @@ export function parseMergedIntoReadable(fields: ContextField) {
     duplicates: {
       Sentence: sentence.duplicates,
       SentenceTranslation: sentenceTranslation.duplicates,
-      SentenceFurigana: sentenceFurigana.duplicates,
       SentenceAudio: sentenceAudio.duplicates,
       MiscInfo: miscInfo.duplicates,
       Picture: picture.duplicates,
@@ -202,7 +181,6 @@ export function toContextField(note: AnkiNote | undefined): ContextField {
     noteId: note?.noteId,
     Sentence: note?.fields.Sentence?.value ?? "",
     SentenceTranslation: note?.fields.SentenceTranslation?.value ?? "",
-    SentenceFurigana: note?.fields.SentenceFurigana?.value ?? "",
     SentenceAudio: note?.fields.SentenceAudio?.value ?? "",
     MiscInfo: note?.fields.MiscInfo?.value ?? "",
     Picture: note?.fields.Picture?.value ?? "",
@@ -215,17 +193,11 @@ export function filterTags(tags: string[], targetTags: string[]): string[] {
   return tags.filter((tag) => targetTags.includes(tag) || !unwantedTags.includes(tag));
 }
 
-/** Strips internal Anki fields (furigana:/kana:/kanji: variants, Tags, CardID, __IS_ROOT__) from the update payload */
+/** Strips internal values (Tags, CardID, __IS_ROOT__) from the update payload */
 export function removeAnkiInternalFields(fields: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(
     Object.entries(fields).filter(
-      ([key]) =>
-        !key.startsWith("furigana:") &&
-        !key.startsWith("kana:") &&
-        !key.startsWith("kanji:") &&
-        key !== "Tags" &&
-        key !== "CardID" &&
-        key !== "__IS_ROOT__",
+      ([key]) => key !== "Tags" && key !== "CardID" && key !== "__IS_ROOT__",
     ),
   );
 }

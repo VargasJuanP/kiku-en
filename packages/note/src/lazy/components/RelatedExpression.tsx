@@ -17,6 +17,7 @@ import { useGeneralContext } from "#/src/contexts/GeneralContext";
 import { useConfigContext } from "#/src/contexts/ConfigContext";
 import { MoveDown } from "./Icons";
 import { preloadImages } from "#/src/lib/dom";
+import { parseIpa } from "#/src/lib/ipa";
 
 const sortNote = (a: AnkiNote, b: AnkiNote) => b.noteId - a.noteId;
 
@@ -50,65 +51,33 @@ function $RelatedExpression() {
     const excludeNewCards = $config.relatedExpressionExcludeNewCards;
     const newCardIds = new Set(query.newNotes.flatMap((n) => n.cards));
 
-    // On front side, only show cards with the same expression but different reading
+    // On the front side, only show cards for the same word with a different pronunciation
+    // (heteronyms like "read" /riːd/ and /rɛd/), which tell apart which one is being asked.
     if ($initialSide() === "front") {
+      const pronunciation = initialAnkiFields.ExpressionIPA;
       return [...(query.sameExpression ?? [])]
         .filter((v) => {
-          if (excludeNewCards)
-            return (
-              !newCardIds.has(v.cards[0]) &&
-              v.fields["ExpressionReading"].value !== initialAnkiFields.ExpressionReading
-            );
-          return v.fields["ExpressionReading"].value !== initialAnkiFields.ExpressionReading;
+          const otherPronunciation = v.fields.ExpressionIPA?.value ?? "";
+          if (!pronunciation || !otherPronunciation || otherPronunciation === pronunciation) {
+            return false;
+          }
+          return !excludeNewCards || !newCardIds.has(v.cards[0]);
         })
         .sort(sortNote);
     }
 
-    // Priority 1: same expression, same reading, same kanji
-    let fallbackPriority1 = [
-      ...(query.sameExpression ?? []),
-      ...(query.sameReading ?? []),
-      ...query.noteList.flatMap((n) => {
-        return n[1];
-      }),
-    ];
-
-    // Priority 2: forms, antonym, referenced
-    let fallbackPriority2 = [
-      ...(query.forms ?? []),
-      ...(query.antonym ?? []),
-      ...(query.referenced ?? []),
-    ];
-
-    // Priority 3: related expression
+    // Related expressions first; other cards for the same word fill in when there are fewer than 2.
+    let fallback = [...(query.sameExpression ?? [])];
     let relatedExpression = query.relatedExpression;
 
     if (excludeNewCards) {
-      fallbackPriority1 = fallbackPriority1.filter((v) => !newCardIds.has(v.cards[0]));
-      fallbackPriority2 = fallbackPriority2.filter((v) => !newCardIds.has(v.cards[0]));
+      fallback = fallback.filter((v) => !newCardIds.has(v.cards[0]));
       relatedExpression = relatedExpression.filter((v) => !newCardIds.has(v.cards[0]));
     }
+    if (!$config.relatedExpressionFallback) fallback = [];
 
-    if (!$config.relatedExpressionFallback) {
-      fallbackPriority1 = [];
-      fallbackPriority2 = [];
-    }
-
-    fallbackPriority1 = fallbackPriority1.sort(sortNote);
-    fallbackPriority2 = fallbackPriority2.sort(sortNote);
-
-    // If related expression is less than 2, fill with fallback priority 2 and 1
-    if (relatedExpression?.length && relatedExpression.length < 2) {
-      return dedupeByCardId([
-        ...relatedExpression,
-        ...fallbackPriority2,
-        ...fallbackPriority1,
-      ]).slice(0, 2);
-    } else if (relatedExpression?.length && relatedExpression.length >= 2) {
-      return dedupeByCardId(relatedExpression);
-    } else {
-      return dedupeByCardId([...fallbackPriority2, ...fallbackPriority1]).slice(0, 2);
-    }
+    if (relatedExpression.length >= 2) return dedupeByCardId(relatedExpression);
+    return dedupeByCardId([...relatedExpression, ...fallback.sort(sortNote)]).slice(0, 2);
   });
 
   const $newNotes = createMemo(() => new Set($$card()?.newNotes.flatMap((n) => n.cards) ?? []));
@@ -236,7 +205,8 @@ function $RelatedExpression() {
               on:touchend={(e) => e.stopPropagation()}
             >
               {$initialSide() === "front"
-                ? note.fields.ExpressionReading.value
+                ? (parseIpa(note.fields.ExpressionIPA?.value ?? "")[0]?.transcription ??
+                  note.fields.Expression.value)
                 : note.fields.Expression.value}
               <Show when={isNew}>
                 <span class="status status-info"></span>

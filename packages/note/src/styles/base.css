@@ -41,27 +41,6 @@
     view-transition-name: modal-fade;
   }
 
-  [data-pitch-type^="heiban"] {
-    --color-pitch: var(--color-info);
-    --color-pitch-content: var(--color-info-content);
-  }
-  [data-pitch-type^="atamadaka"] {
-    --color-pitch: var(--color-error);
-    --color-pitch-content: var(--color-error-content);
-  }
-  [data-pitch-type^="nakadaka"] {
-    --color-pitch: var(--color-warning);
-    --color-pitch-content: var(--color-warning-content);
-  }
-  [data-pitch-type^="odaka"] {
-    --color-pitch: var(--color-success);
-    --color-pitch-content: var(--color-success-content);
-  }
-  [data-pitch-type^="kifuku"] {
-    --color-pitch: var(--color-accent);
-    --color-pitch-content: var(--color-accent-content);
-  }
-
   ruby rt {
     user-select: none;
   }

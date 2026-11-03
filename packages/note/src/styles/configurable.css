@@ -10,9 +10,9 @@
   line-height: var(--line-height-base-expression);
 }
 
-.pitch {
-  font-size: var(--font-size-base-pitch);
-  line-height: var(--line-height-base-pitch);
+.ipa {
+  font-size: var(--font-size-base-ipa);
+  line-height: var(--line-height-base-ipa);
 }
 
 .sentence {
@@ -36,9 +36,9 @@
     line-height: var(--line-height-sm-expression);
   }
 
-  .pitch {
-    font-size: var(--font-size-sm-pitch);
-    line-height: var(--line-height-sm-pitch);
+  .ipa {
+    font-size: var(--font-size-sm-ipa);
+    line-height: var(--line-height-sm-ipa);
   }
 
   .sentence {

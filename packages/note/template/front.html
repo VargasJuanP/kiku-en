@@ -1,4 +1,4 @@
-<!-- Kiku Note __VERSION__
+<!-- Kiku EN Note __VERSION__ (fork of Kiku by youyoumu, MIT)
 This file is auto-generated. Any manual changes will be lost on save.
 -->
 
@@ -18,7 +18,6 @@ This file is auto-generated. Any manual changes will be lost on save.
   data-theme-dark="__DATA_THEME_DARK__"
   data-blur-nsfw="__DATA_BLUR_NSFW__"
   data-picture-on-front="__DATA_PICTURE_ON_FRONT__"
-  data-mod-vertical="__DATA_MOD_VERTICAL__"
 >
   <!-- Do not modify anything if you don't know what you're doing Σ(°ロ°) -->
   <!-- SSR_TEMPLATE -->
@@ -32,8 +31,6 @@ This file is auto-generated. Any manual changes will be lost on save.
 <link href="_kikuen_lazy.js" data-anki-include />
 <link href="_kikuen_worker.js" data-anki-include />
 <link href="_kikuen_plugin.js" data-anki-include />
-<link href="_kikuen_db_main.tar" data-anki-include />
-<link href="_kikuen_db_main_manifest.json" data-anki-include />
 <link href="_kikuen_back.html" data-anki-include />
 <link href="_kikuen_front.html" data-anki-include />
 <link href="_kikuen_style.css" data-anki-include />
@@ -48,14 +45,12 @@ This file is auto-generated. Any manual changes will be lost on save.
   {{/IsAudioCard}}
 
   <template data-field="Expression">{{Expression}}</template>
-  <template data-field="ExpressionFurigana">{{ExpressionFurigana}}</template>
-  <template data-field="ExpressionReading">{{ExpressionReading}}</template>
+  <template data-field="ExpressionIPA">{{ExpressionIPA}}</template>
   <template data-field="RelatedExpression">{{RelatedExpression}}</template>
   <template data-field="SelectionText">{{SelectionText}}</template>
   <template data-field="MainDefinition">{{MainDefinition}}</template>
   <template data-field="DefinitionPicture">{{DefinitionPicture}}</template>
   <template data-field="Sentence">{{Sentence}}</template>
-  <template data-field="SentenceFurigana">{{SentenceFurigana}}</template>
   <template data-field="SentenceTranslation">{{SentenceTranslation}}</template>
   <template data-field="Picture">{{Picture}}</template>
   <template data-field="Glossary">{{Glossary}}</template>
@@ -64,19 +59,11 @@ This file is auto-generated. Any manual changes will be lost on save.
   <template data-field="IsClickCard">{{IsClickCard}}</template>
   <template data-field="IsSentenceCard">{{IsSentenceCard}}</template>
   <template data-field="IsAudioCard">{{IsAudioCard}}</template>
-  <template data-field="PitchPosition">{{PitchPosition}}</template>
-  <template data-field="PitchCategories">{{PitchCategories}}</template>
   <template data-field="Frequency">{{Frequency}}</template>
   <template data-field="FreqSort">{{FreqSort}}</template>
   <template data-field="MiscInfo">{{MiscInfo}}</template>
   <template data-field="Tags">{{Tags}}</template>
   <template data-field="CardID">{{CardID}}</template>
-  <template data-field="furigana:ExpressionFurigana">{{furigana:ExpressionFurigana}}</template>
-  <template data-field="kana:ExpressionFurigana">{{kana:ExpressionFurigana}}</template>
-  <template data-field="furigana:Sentence">{{furigana:Sentence}}</template>
-  <template data-field="kanji:Sentence">{{kanji:Sentence}}</template>
-  <template data-field="furigana:SentenceFurigana">{{furigana:SentenceFurigana}}</template>
-  <template data-field="kana:SentenceFurigana">{{kana:SentenceFurigana}}</template>
 </template>
 
 <!-- ERROR_TEMPLATE -->
