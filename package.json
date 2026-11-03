@@ -1,5 +1,5 @@
 {
-  "name": "kiku",
+  "name": "kiku-en",
   "private": true,
   "scripts": {
     "build": "turbo run build",

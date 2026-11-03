@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Kiku EN [0.1.0] - 2026-11-03
+
+First release of the English adaptation, forked from Kiku 2.1.0.
+
+### Added
+
+- `ExpressionIPA` field, shown on the back as one chip per pronunciation variant.
+  Reads Yomitan's `{phonetic-transcriptions}`, lists, and `UK:` / `(US)` labels.
+- English external links: Cambridge, Merriam-Webster, Wiktionary, YouGlish, Google Images.
+- `apply` creates the note type when it does not exist, and stores files through AnkiConnect.
+
+### Changed
+
+- Note type `Kiku EN`, media files `_kikuen*`, and its own identifiers, so it
+  coexists with Kiku in one collection.
+- Related cards use the word and `RelatedExpression`; front-side heteronyms are
+  told apart by IPA.
+- Latin fonts by default, with IPA-friendly serifs.
+
+### Removed
+
+- Furigana, reading and pitch accent fields; the kanji page, tooltips and
+  database; vertical writing; Japanese-only plugins; the Kiku Note Manager add-on
+  and the documentation site.
+
+## Kiku (upstream) history
+
 ## [Unreleased]
 
 ## [v2.1.0] - 2026-07-30

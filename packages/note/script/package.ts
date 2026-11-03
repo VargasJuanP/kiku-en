@@ -4,7 +4,7 @@ import { paths } from "#/tools/paths.ts";
 import { AnkiConnect, getVersion } from "#/tools/util.js";
 
 class Script {
-  DECK_NAME = "Kiku"; // change if needed
+  DECK_NAME = "Kiku EN"; // change if needed
 
   async ensureReleaseDir() {
     await mkdir(paths["@/.release/"], { recursive: true });

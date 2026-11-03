@@ -1,12 +1,27 @@
 import { cp, stat } from "node:fs/promises";
-import { basename, join } from "node:path";
-import { env } from "#/tools/env.ts";
+import { basename, join, resolve } from "node:path";
 import { paths } from "#/tools/paths.ts";
+import { AnkiConnect } from "#/tools/util.js";
 
+/**
+ * Copies the built note files into Anki's media folder through AnkiConnect,
+ * so it works with any profile and Anki registers the files.
+ */
 class Script {
-  async ensureAnkiDir() {
-    await stat(env.ANKI_COLLECTION_MEDIA_PATH);
-  }
+  /** Rebuilt on every install. */
+  BUILD_FILES = [
+    "_kikuen_front.html",
+    "_kikuen_back.html",
+    "_kikuen_style.css",
+    "_kikuen.css",
+    "_kikuen.js",
+    "_kikuen_lazy.js",
+    "_kikuen_libs.js",
+    "_kikuen_shared.js",
+    "_kikuen_worker.js",
+  ];
+  /** Users customize these, so they are only added when missing. */
+  PLUGIN_FILES = ["_kikuen_plugin.js", "_kikuen_plugin.css"];
 
   async copyAssetsFromDistToAnkiBuild() {
     const ASSETS = [
@@ -25,46 +40,38 @@ class Script {
     }
   }
 
-  async copyFiles(files: string[], srcDir: string) {
-    for (const file of files) {
-      const src = join(srcDir, file);
-      await stat(src);
-      const dest = join(env.ANKI_COLLECTION_MEDIA_PATH, file);
-      await cp(src, dest);
-      console.log(`✅ Copied ${basename(src)}`);
-    }
+  async storeMediaFile(file: string) {
+    const path = resolve(join(paths["@/.anki-build/"], file));
+    await stat(path);
+    await AnkiConnect.call("storeMediaFile", { filename: file, path });
+    console.log(`✅ Stored ${file}`);
   }
 
-  async copyAnkiBuild() {
-    const FILES = [
-      "_kikuen_front.html",
-      "_kikuen_back.html",
-      "_kikuen_style.css",
-      "_kikuen.css",
-      "_kikuen.js",
-      "_kikuen_lazy.js",
-      "_kikuen_libs.js",
-      "_kikuen_shared.js",
-      "_kikuen_worker.js",
-      "_kikuen_plugin.js",
-      "_kikuen_plugin.css",
-    ];
-
-    console.log("\n📁 Copying ANKI BUILD files...");
-    await this.copyFiles(FILES, paths["@/.anki-build/"]);
+  async existingMediaFiles(pattern: string) {
+    const { result } = await AnkiConnect.call("getMediaFilesNames", { pattern });
+    return new Set(result as string[]);
   }
 
   async run() {
-    console.log(`🔍 Checking Anki collection at: ${env.ANKI_COLLECTION_MEDIA_PATH}`);
-    await this.ensureAnkiDir();
     await this.copyAssetsFromDistToAnkiBuild();
-    await this.copyAnkiBuild();
+
+    console.log("\n📁 Storing note files in Anki's media folder...");
+    for (const file of this.BUILD_FILES) await this.storeMediaFile(file);
+
+    const existing = await this.existingMediaFiles("_kikuen_plugin.*");
+    for (const file of this.PLUGIN_FILES) {
+      if (existing.has(file)) {
+        console.log(`⏭️  Kept your ${file}`);
+      } else {
+        await this.storeMediaFile(file);
+      }
+    }
     console.log("\n🎉 Done!");
   }
 }
 
 const script = new Script();
 script.run().catch((e) => {
-  console.error("Script failed:", e);
+  console.error("Script failed (is Anki open, with AnkiConnect installed?):", e);
   process.exit(1);
 });

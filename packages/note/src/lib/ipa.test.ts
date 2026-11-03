@@ -41,6 +41,20 @@ describe("parseIpa", () => {
     expect(parseIpa("/ˈwɔːtə/ (UK)")).toEqual([{ transcription: "/ˈwɔːtə/", label: "UK" }]);
   });
 
+  it("reads Yomitan's {phonetic-transcriptions} markup, where labels come first", () => {
+    const yomitan =
+      '<ul><li class="pronunciation" data-pronunciation-type="phonetic-transcription">' +
+      '<i>(<span class="tag" data-details="UK">UK</span>, <span class="tag" data-details="RP">RP</span>)</i> /ˈwɔːtə/</li>' +
+      '<li class="pronunciation" data-pronunciation-type="phonetic-transcription">' +
+      '<i>(<span class="tag" data-details="US">US</span>)</i> [ˈwɑɾɚ]</li>' +
+      '<li class="pronunciation" data-pronunciation-type="phonetic-transcription">/ˈwɔtər/</li></ul>';
+    expect(parseIpa(yomitan)).toEqual([
+      { transcription: "/ˈwɔːtə/", label: "UK, RP" },
+      { transcription: "[ˈwɑɾɚ]", label: "US" },
+      { transcription: "/ˈwɔtər/", label: "" },
+    ]);
+  });
+
   it("treats parentheses inside a transcription as optional sounds, not labels", () => {
     expect(parseIpa("/ˈɡɑː(r)dn/")).toEqual([{ transcription: "/ˈɡɑː(r)dn/", label: "" }]);
   });

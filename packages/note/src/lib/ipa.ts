@@ -11,8 +11,9 @@ export type IpaVariant = {
  * Splits the ExpressionIPA field into pronunciation variants.
  *
  * Dictionaries format IPA in many ways, so this accepts list markup (one
- * variant per item), line breaks, or "," / ";" between variants, and labels
- * written as "(US)" or "US:". Bare transcriptions are wrapped in slashes:
+ * variant per item, as Yomitan's {phonetic-transcriptions} produces), line
+ * breaks, or "," / ";" between variants, and accent labels written as
+ * "(US) /…/", "/…/ (US)" or "US: /…/". Bare transcriptions are wrapped in slashes:
  * "ˈwɔːtə" → "/ˈwɔːtə/".
  */
 export function parseIpa(html: string): IpaVariant[] {
@@ -42,7 +43,13 @@ function parseVariant(text: string): IpaVariant | undefined {
   let rest = text.replace(/\s+/g, " ").trim();
   const labels: string[] = [];
 
-  // "UK: /ˈwɔːtə/" or "US /ˈwɑːtər/"
+  // "(UK, RP) /ˈwɔːtə/", as Yomitan's {phonetic-transcriptions} writes it
+  const leading = /^\(([^()/[\]]+)\)\s*/.exec(rest);
+  if (leading) {
+    labels.push(leading[1].trim());
+    rest = rest.slice(leading[0].length);
+  }
+  // "UK: /ˈwɔːtə/"
   const prefix = /^([A-Za-z][A-Za-z .-]{0,24}?)\s*[:：]\s*/.exec(rest);
   if (prefix) {
     labels.push(prefix[1].trim());

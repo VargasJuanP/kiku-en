@@ -37,3 +37,6 @@ apps/docs/.vitepress/cache
 .TODO.md
 AGENTS.md
 
+
+# Kiku EN: local preview media and build output
+/packages/note/.sandbox-media/

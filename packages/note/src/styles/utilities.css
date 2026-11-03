@@ -1,9 +1,0 @@
-@layer utilities {
-  .hide-rt {
-    @apply [&_rt]:hidden;
-  }
-
-  .horizontal-tb {
-    writing-mode: horizontal-tb;
-  }
-}

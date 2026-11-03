@@ -21,18 +21,17 @@ const ANKI_USER = process.env.ANKI_USER ?? "User 1";
 const ANKI_COLLECTION_MEDIA_PATH =
   process.env.ANKI_COLLECTION_MEDIA_PATH || join(BASE_DIR, `Anki2/${ANKI_USER}/collection.media`);
 
-// 2. Only validate the path if we are NOT in a CI environment (like Vercel)
+// 2. The media folder is only needed by the dev preview and the plugin scripts; installing goes
+// through AnkiConnect. Warn instead of failing so the note builds without it.
 if (process.env.CI !== "true") {
   try {
     await stat(ANKI_COLLECTION_MEDIA_PATH);
   } catch {
-    throw new Error(
-      `ANKI_COLLECTION_MEDIA_PATH does not exist at: ${ANKI_COLLECTION_MEDIA_PATH}\n` +
-        "Please check your .env file or ensure the path is correct.",
+    console.warn(
+      `! ANKI_COLLECTION_MEDIA_PATH does not exist at: ${ANKI_COLLECTION_MEDIA_PATH}\n` +
+        "  The dev preview will not show your media; set it in .env if you need it.",
     );
   }
-} else {
-  console.log("🚀 CI detected: Skipping local file system validation.");
 }
 
 export const env = {

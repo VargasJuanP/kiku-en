@@ -1,56 +1,82 @@
-# Kiku
+# 菊 Kiku EN
 
-![Downloads](https://img.shields.io/github/downloads/youyoumu/kiku/total.svg?label=Downloads)
-![Release](https://img.shields.io/github/v/release/youyoumu/kiku?label=Latest%20Version)
-![Addon](https://img.shields.io/badge/Addon-v1.1.1-blue?logo=anki&link=https%3A%2F%2Fankiweb.net%2Fshared%2Finfo%2F408592650%3Fcb%3D1763445474367)
-![Anki](https://img.shields.io/badge/Anki-_25.09.2-blue?logo=anki)
-![Platform](https://img.shields.io/badge/Platform-Desktop%20%2B%20Mobile-green)
-![License](https://img.shields.io/github/license/youyoumu/kiku?label=License)
-![GitHub top language](https://img.shields.io/github/languages/top/youyoumu/kiku)
+An Anki note type for learning English vocabulary by sentence mining: a fork of
+[Kiku](https://github.com/youyoumu/kiku) by youyoumu, adapted from Japanese to
+English.
 
-<br/>
-<div align="center">
-  <div>
-    <a href="https://kiku.youyoumu.my.id/">Documentation</a> |
-    <a href="https://kiku.youyoumu.my.id/features.html">Features</a> |
-    <a href="https://kiku.youyoumu.my.id/installation.html">Installation</a> |
-    <a href="https://ankiweb.net/shared/info/408592650?cb=1763445474367">Addon</a>
-  </div>
-  <br/>
+Kiku EN keeps what is useful for any language (the interactive card, related
+cards from your collection, merging duplicate contexts, field groups, themes,
+plugins, AnkiDroid integration) and replaces the Japanese-specific parts:
 
-<img height="256" alt="logo" src="https://github.com/user-attachments/assets/344130d4-76be-473b-bde1-17fa687cf574" />
+| Kiku (Japanese)                            | Kiku EN                                                  |
+| ------------------------------------------ | -------------------------------------------------------- |
+| Furigana and reading fields                | `ExpressionIPA`, shown as one chip per variant (UK, US…) |
+| Pitch accent graphs and colours            | Covered by IPA, which marks stress (ˈ ˌ)                 |
+| Kanji page, kanji tooltips, kanji database | Removed                                                  |
+| Related cards by kanji and reading         | Related cards by word and `RelatedExpression`            |
+| Front side shows homographs with a reading | Shows heteronyms with their IPA (_read_ /riːd/, /rɛd/)   |
+| JPDB, Jisho, Google Japan links            | Cambridge, Merriam-Webster, Wiktionary, YouGlish, Images |
+| Japanese fonts, vertical writing           | Latin fonts, with IPA-friendly serifs (Charis, Gentium)  |
 
-<br/>
-<br/>
-<p>A feature-rich, fully interactive Anki note type designed for Japanese learners.</p>
-</div>
+Kiku EN uses its own note type name (`Kiku EN`), media files (`_kikuen*`) and
+identifiers, so it can live in the same collection as Kiku.
 
-<hr/>
+## Fields
 
-## Get Started
+| Field                                                                   | Yomitan marker                                    |
+| ----------------------------------------------------------------------- | ------------------------------------------------- |
+| `Expression`                                                            | `{expression}`                                    |
+| `ExpressionIPA`                                                         | `{phonetic-transcriptions}`                       |
+| `ExpressionAudio`                                                       | `{audio}`                                         |
+| `RelatedExpression`                                                     |                                                   |
+| `SelectionText`                                                         | `{popup-selection-text}`                          |
+| `MainDefinition`                                                        | `{glossary-first}`                                |
+| `DefinitionPicture`                                                     |                                                   |
+| `Sentence`                                                              | `{cloze-prefix}<b>{cloze-body}</b>{cloze-suffix}` |
+| `SentenceAudio`                                                         | from your sentence audio tool                     |
+| `SentenceTranslation`                                                   | your translation                                  |
+| `Picture`                                                               | `{screenshot}`                                    |
+| `Glossary`                                                              | `{glossary}`                                      |
+| `Hint`                                                                  |                                                   |
+| `IsWordAndSentenceCard`, `IsClickCard`, `IsSentenceCard`, `IsAudioCard` | card type flags, as in Kiku                       |
+| `Frequency`                                                             | `{frequencies}`                                   |
+| `FreqSort`                                                              | `{frequency-harmonic-rank}`                       |
+| `MiscInfo`                                                              | `{document-title}`                                |
 
-To get started, visit the documentation [here](https://kiku.youyoumu.my.id/installation.html).
+`{phonetic-transcriptions}` needs an IPA dictionary installed in Yomitan, such
+as the Wiktionary IPA dictionaries from
+[wiktionary-to-yomitan](https://github.com/yomidevs/wiktionary-to-yomitan).
+`ExpressionIPA` also accepts IPA typed by hand: `UK: /ˈwɔːtə/, US: /ˈwɑːtər/`.
 
-## Demo
-[kanji-web.webm](https://github.com/user-attachments/assets/6d6027bf-0e68-4dc8-8f55-53eb04002fcf)
+## Install
 
-[See more features](https://kiku.youyoumu.my.id/features.html)
+Requires Node.js 24+, and Anki running with
+[AnkiConnect](https://ankiweb.net/shared/info/2055492159).
 
-## Support
+```sh
+corepack pnpm install
+cd packages/note
+corepack pnpm apply
+```
 
-Found a bug or have a feature request?  
-Please [open an issue here](https://github.com/youyoumu/kiku/issues).
+`apply` builds the note, stores its files in Anki's media folder and creates
+the `Kiku EN` note type, or updates it if it already exists. Your
+`_kikuen_plugin.js` and `_kikuen_plugin.css` are kept if present.
 
-## Credit
+## Development
 
-- [Lapis](https://github.com/donkuri/lapis), [JPMN](https://github.com/Aquafina-water-bottle/jp-mining-note), and [Senren](https://github.com/BrenoAqua/Senren) for inspiration.
-- Dictionary data based on [JMdict](https://www.edrdg.org/jmdict/j_jmdict.html).
-- Kanji decomposition data derived from [KanjiVG](https://kanjivg.tagaini.net/).
-- Additional metadata and heuristics were derived from publicly accessible information on WaniKani and JPDB.
-- [WaniKani Userscript](https://github.com/mwil/wanikani-userscripts) for the database used in earlier versions of the project.
+```sh
+cd packages/note
+corepack pnpm test        # unit tests
+corepack pnpm typecheck
+corepack pnpm lint
+corepack pnpm dev         # preview at http://localhost:5173/?side=front (or back)
+```
 
-## Support Me
+The preview shows Anki media when `ANKI_COLLECTION_MEDIA_PATH` is set in
+`packages/note/.env` (see `.env.example`).
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U6U81PEJF0)
+## Credits
 
-You can also support me on [GitHub Sponsors](https://github.com/sponsors/youyoumu) 😄
+Kiku EN is based on [Kiku](https://github.com/youyoumu/kiku) by youyoumu,
+under the MIT License. See [LICENSE](LICENSE).
