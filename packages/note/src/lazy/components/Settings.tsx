@@ -259,6 +259,12 @@ function DefinitionSettings() {
           label="Style"
           options={[
             {
+              value: "glossary-split",
+              label: "Per Dictionary",
+              description:
+                "One page per dictionary in the glossary. Only works with Yomitan's format.",
+            },
+            {
               value: "normal",
               label: "Normal (3 Pages)",
               description: "Shows Selection, Main Definition, and Glossary as separate pages.",
@@ -267,12 +273,6 @@ function DefinitionSettings() {
               value: "single-page",
               label: "Single Page (Appended)",
               description: "Appends all definitions into a single scrollable page.",
-            },
-            {
-              value: "glossary-split",
-              label: "Glossary Split (Per Dictionary)",
-              description:
-                "Splits the glossary into individual pages for each dictionary. Only works with Yomitan format",
             },
           ]}
         />

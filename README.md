@@ -48,6 +48,24 @@ as the Wiktionary IPA dictionaries from
 [wiktionary-to-yomitan](https://github.com/yomidevs/wiktionary-to-yomitan).
 `ExpressionIPA` also accepts IPA typed by hand: `UK: /ˈwɔːtə/, US: /ˈwɑːtər/`.
 
+## Dictionaries
+
+The glossary is shown one page per dictionary, in Yomitan's order (the
+_Definition → Style_ setting has the other layouts). A setup that works well,
+in this order:
+
+| Dictionary        | Kind        | Why                                                                        |
+| ----------------- | ----------- | -------------------------------------------------------------------------- |
+| `seth-oald-extra` | definitions | Oxford Advanced Learner's: plain definitions, examples, Oxford 3000/5000   |
+| `wty-en-es-gloss` | definitions | Translations into Spanish (or the `wty-en-xx-gloss` for your language)     |
+| `wty-en-en`       | definitions | Wiktionary: the catch-all for slang, archaic and rare words; has etymology |
+| `seth-oald-ipa`   | IPA         | One US and one UK transcription, so these come first on the card           |
+| `wty-en-en-ipa`   | IPA         | Every accent Wiktionary knows, and the other readings of heteronyms        |
+| `yzk-freq-en`     | frequency   | Sorts Yomitan's results (rank, ascending) and fills `Frequency`/`FreqSort` |
+
+Flags in accent labels (🇺🇸, 🇬🇧) are shown as text, since Windows doesn't draw
+flag emoji.
+
 ## Install
 
 Requires Node.js 24+, and Anki running with

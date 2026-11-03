@@ -1,13 +1,18 @@
 import { createMemo, createSignal, For, onCleanup, onMount, Show } from "solid-js";
 import type { DatasetProp } from "#/src/lib/config";
-import { isHtmlEffectivelyEmpty, parseHtml, removeBrInsideStyleTag } from "#/src/lib/dom";
+import { isHtmlEffectivelyEmpty, removeBrInsideStyleTag } from "#/src/lib/dom";
 import { useAnkiFieldContext } from "#/src/contexts/AnkiFieldsContext";
 import { useConfigContext } from "#/src/contexts/ConfigContext";
+import {
+  decorateGlossary,
+  dictionaryLabel,
+  glossaryContains,
+  splitByDictionary,
+} from "#/src/lib/glossary";
 import { DefinitionPictureSection } from "./DefinitionPictureSection";
 import { ExternalLinks } from "./ExternalLinks";
 
 export function Definition() {
-  const [$modalRef, $setModalRef] = createSignal<HTMLDialogElement>();
   const { $ankiFields } = useAnkiFieldContext();
   const { $config } = useConfigContext();
 
@@ -34,13 +39,15 @@ export function Definition() {
   });
 
   const $pages = createMemo(() => {
-    const p: { name: string; html: string }[] = [];
+    const p: { name: string; dictionary?: string; html: string }[] = [];
     const selection = $selection();
     const main = $main();
     const glossary = $glossary();
+    const split = $config.definitionStyle === "glossary-split";
+    const decorate = (html: string) => decorateGlossary(html, { showDictionary: !split });
 
     if ($config.definitionStyle === "single-page") {
-      const combined = [selection, main, glossary].filter(Boolean);
+      const combined = [selection, main, glossary].filter(Boolean).map(decorate);
       if (combined.length > 0) {
         const html = combined.join('<div class="divider my-4"></div>');
         p.push({ name: "Definition", html });
@@ -51,54 +58,20 @@ export function Definition() {
     if (selection) {
       p.push({ name: "Selection Text", html: selection });
     }
-    if (main) {
-      let name = "Main Definition";
-      if ($config.definitionStyle === "glossary-split") {
-        const doc = parseHtml(main);
-        const li = doc.querySelector("li[data-dictionary]");
-        const dictName = li?.getAttribute("data-dictionary");
-        if (dictName) {
-          name = `Main Definition (${dictName})`;
-        }
-      }
-      p.push({ name, html: main });
+
+    const fullGlossary = removeBrInsideStyleTag($ankiFields.Glossary);
+    const dictionaries = split ? splitByDictionary(fullGlossary) : [];
+    // Split by dictionary, Yomitan's main definition is already on its dictionary's page.
+    if (main && !(dictionaries.length > 0 && glossaryContains(fullGlossary, main))) {
+      p.push({ name: "Main Definition", html: decorate(main) });
     }
 
-    if (!isHtmlEffectivelyEmpty(glossary)) {
-      const doc = parseHtml(glossary);
-      const entries = doc.querySelectorAll("li[data-dictionary]");
-      if ($config.definitionStyle === "glossary-split" && entries.length > 0) {
-        const styles = Array.from(doc.querySelectorAll("style"))
-          .map((s) => s.outerHTML)
-          .join("");
-        const dictGroups = new Map<string, string>();
-        for (const li of entries) {
-          const dictName = li.getAttribute("data-dictionary") || "Glossary";
-          const prevHtml = dictGroups.get(dictName);
-          const divider = prevHtml ? '<div class="divider"></div>' : "";
-          dictGroups.set(dictName, (prevHtml || "") + divider + li.outerHTML);
-        }
-        for (const [name, html] of dictGroups) {
-          p.push({
-            name: name,
-            html: `<div style="text-align: left;" class="yomitan-glossary"><ol>${styles}${html}</ol></div>`,
-          });
-        }
-      } else {
-        p.push({ name: "Glossary", html: glossary });
+    if (dictionaries.length > 0) {
+      for (const { dictionary, html } of dictionaries) {
+        p.push({ name: dictionaryLabel(dictionary), dictionary, html: decorate(html) });
       }
-    }
-
-    if ($config.definitionStyle === "glossary-split") {
-      for (const item of p) {
-        const doc = parseHtml(item.html);
-        const iEl = doc.querySelector("i:first-child");
-        if (!(iEl instanceof HTMLElement)) continue;
-        if (iEl?.textContent === `(${item.name})`) {
-          iEl.style.display = "none";
-        }
-        item.html = doc.body.innerHTML;
-      }
+    } else if (glossary) {
+      p.push({ name: "Glossary", html: decorate(glossary) });
     }
 
     return p;
@@ -123,7 +96,7 @@ export function Definition() {
   });
 
   const $definitionDataset = createMemo<DatasetProp>(() => ({
-    "data-dictionary": currentPage()?.name,
+    "data-dictionary": currentPage()?.dictionary ?? currentPage()?.name,
   }));
 
   return (
@@ -131,23 +104,25 @@ export function Definition() {
       <Show when={$pages().length > 0}>
         <div class="animate-fade-in" {...$definitionDataset()}>
           {$pages().length > 1 && (
-            <div
-              class="flex justify-between text-base-content-calm text-sm cursor-pointer hover:text-base-content transition-colors mb-1 tappable"
-              on:click={() => $modalRef()?.showModal()}
-              on:touchend={(e) => e.stopPropagation()}
-            >
-              <div
-                style={{
-                  color: "var(--dictionary-color, var(--color-base-content-calm)",
-                }}
-              >
-                {currentPage()?.name}
-              </div>
-              <div class="text-base-content-soft">{`${$definitionIndex() + 1}/${$pages().length}`}</div>
+            <div class="flex gap-1 overflow-x-auto mb-2 definition-tabs" role="tablist">
+              <For each={$pages()}>
+                {(page, i) => (
+                  <button
+                    type="button"
+                    role="tab"
+                    class="definition-tab"
+                    aria-selected={i() === $definitionIndex()}
+                    on:click={() => $setDefinitionIndex(i())}
+                    on:touchend={(e) => e.stopPropagation()}
+                  >
+                    {page.name}
+                  </button>
+                )}
+              </For>
             </div>
           )}
           <div
-            class="relative bg-base-200 p-2 sm:p-4 border-s-4 text-base sm:text-xl rounded-lg definition-field"
+            class="relative bg-base-200 p-3 sm:p-5 border-s-4 text-base sm:text-xl rounded-lg definition-field"
             style={{
               "border-color": "var(--dictionary-color, var(--color-primary)",
             }}
@@ -179,42 +154,6 @@ export function Definition() {
           </div>
         </div>
       </Show>
-
-      <dialog class="modal" ref={$setModalRef}>
-        <div class="modal-box max-w-sm max-h-[80svh] flex flex-col p-4 gap-2">
-          <h3 class="font-bold text-lg px-2 text-center">Select Page</h3>
-          <div class="flex flex-col gap-1 overflow-auto p-2">
-            <For each={$pages()}>
-              {(page, i) => (
-                <button
-                  type="button"
-                  class="btn btn-ghost btn-sm justify-start font-normal text-left"
-                  classList={{ "btn-active": i() === $definitionIndex() }}
-                  on:click={() => {
-                    $setDefinitionIndex(i());
-                    $modalRef()?.close();
-                  }}
-                  on:touchend={(e) => e.stopPropagation()}
-                >
-                  <span class="truncate">
-                    {i() + 1}. {page.name}
-                  </span>
-                </button>
-              )}
-            </For>
-          </div>
-          <div class="modal-action mt-2">
-            <form method="dialog">
-              <button class="btn btn-sm" on:touchend={(e) => e.stopPropagation()}>
-                Close
-              </button>
-            </form>
-          </div>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button on:touchend={(e) => e.stopPropagation()}>Close</button>
-        </form>
-      </dialog>
     </>
   );
 }

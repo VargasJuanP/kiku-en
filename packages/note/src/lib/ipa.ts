@@ -34,6 +34,12 @@ export function parseIpa(html: string): IpaVariant[] {
     const key = `${variant.label}\u0000${variant.transcription}`;
     if (seen.has(key)) continue;
     seen.add(key);
+    // "(US) /riːd/", "(UK) /riːd/" → "(US, UK) /riːd/"
+    const previous = variants.at(-1);
+    if (previous?.transcription === variant.transcription) {
+      previous.label = joinLabels([previous.label, variant.label]);
+      continue;
+    }
     variants.push(variant);
   }
   return variants;
@@ -65,11 +71,43 @@ function parseVariant(text: string): IpaVariant | undefined {
   if (!rest) return undefined;
 
   const delimited = /^\/.*\/$|^\[.*\]$/.test(rest);
-  const uniqueLabels = [...new Set(labels.flatMap((label) => label.split(/\s*,\s*/)))];
   return {
     transcription: delimited ? rest : `/${rest.replace(/^\/|\/$/g, "")}/`,
-    label: uniqueLabels.filter(Boolean).join(", "),
+    label: joinLabels(labels),
   };
+}
+
+/** Splits, normalizes and dedupes comma-separated labels. */
+function joinLabels(labels: string[]) {
+  const parts = labels.flatMap((label) => label.split(/\s*,\s*/)).map(normalizeLabel);
+  return [...new Set(parts.filter(Boolean))].join(", ");
+}
+
+const SUBDIVISIONS: Record<string, string> = {
+  gbeng: "England",
+  gbsct: "Scotland",
+  gbwls: "Wales",
+  gbnir: "Northern Ireland",
+};
+
+/**
+ * Flag emoji to text, since Windows doesn't draw flags: "🇺🇸" → "US",
+ * "🇬🇧" → "UK", England's flag → "England". Also "General-American" → "General American".
+ */
+function normalizeLabel(label: string) {
+  const text = label
+    .replace(/[\u{1F1E6}-\u{1F1FF}]{2}/gu, (flag) =>
+      String.fromCharCode(...Array.from(flag, (char) => (char.codePointAt(0) ?? 0) - 0x1f1e6 + 65)),
+    )
+    .replace(/\u{1F3F4}([\u{E0061}-\u{E007A}]+)\u{E007F}/gu, (_, tags: string) => {
+      const code = String.fromCharCode(
+        ...Array.from(tags, (char) => (char.codePointAt(0) ?? 0) - 0xe0000),
+      );
+      return SUBDIVISIONS[code] ?? code.toUpperCase();
+    })
+    .replace(/(?<=\p{L})-(?=\p{L})/gu, " ")
+    .trim();
+  return text === "GB" ? "UK" : text;
 }
 
 /**

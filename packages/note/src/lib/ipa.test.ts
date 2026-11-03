@@ -69,6 +69,25 @@ describe("parseIpa", () => {
       parseIpa("<ul><li>(Baltimore, Philadelphia) [ˈwʊ.ɾɚ] (Philadelphia, Baltimore)</li></ul>"),
     ).toEqual([{ transcription: "[ˈwʊ.ɾɚ]", label: "Baltimore, Philadelphia" }]);
   });
+
+  it("writes flag labels as text", () => {
+    const england = "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}";
+    expect(
+      parseIpa(
+        `<ul><li>(🇺🇸) /ber/</li><li>(🇬🇧) /beə(r)/</li><li>(${england}, General-American) /bɛə/</li></ul>`,
+      ).map((v) => v.label),
+    ).toEqual(["US", "UK", "England, General American"]);
+  });
+
+  it("merges a transcription repeated for the next accent", () => {
+    // As Oxford's IPA dictionary gives "read"
+    expect(
+      parseIpa("<ul><li>(🇺🇸) /riːd/</li><li>(🇬🇧) /riːd/</li><li>(🇦🇺) /ɹiːd/</li></ul>"),
+    ).toEqual([
+      { transcription: "/riːd/", label: "US, UK" },
+      { transcription: "/ɹiːd/", label: "AU" },
+    ]);
+  });
 });
 
 describe("orderForDisplay", () => {

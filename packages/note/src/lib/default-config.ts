@@ -18,7 +18,7 @@ export const defaultConfig: KikuConfig = {
   preferAnkiConnect: false,
   modHidden: false,
   modHiddenDuration: 2000,
-  definitionStyle: "normal",
+  definitionStyle: "glossary-split",
   definitionPictureFromGlossary: false,
   relatedExpressionExcludeNewCards: true,
   relatedExpressionFallback: true,
