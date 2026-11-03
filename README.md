@@ -66,6 +66,22 @@ in this order:
 Flags in accent labels (🇺🇸, 🇬🇧) are shown as text, since Windows doesn't draw
 flag emoji.
 
+Pages are named after each dictionary's alias in Yomitan (_Dictionaries →
+Alias_), e.g. `Oxford`, `Español`, `Wiktionary`. Keep Yomitan's _Compact tags_
+off: the card reads the dictionary from the last tag of each entry.
+
+On a card, `MiscInfo` is hidden when it's only the title of Yomitan's own
+search page or settings preview.
+
+### Yomitan popup
+
+[`yomitan/popup.css`](yomitan/popup.css) restyles Yomitan's popup to match:
+pronunciations on one line (Oxford's US and UK, with Wiktionary's accents on
+hover), one card per entry coloured by dictionary, tag pills, numbered senses
+and two examples per sense (hover for the rest). Paste it into _Settings →
+Appearance → Configure custom CSS → Popup CSS_. It works with the light and dark
+themes.
+
 ## Install
 
 Requires Node.js 24+, and Anki running with

@@ -1,0 +1,106 @@
+/* Kiku EN: a cleaner Yomitan popup for English. Works with light and dark themes. */
+:root {
+  --ke-muted: color-mix(in srgb, var(--text-color) 55%, transparent);
+  --ke-faint: color-mix(in srgb, var(--text-color) 8%, transparent);
+  --ke-line: color-mix(in srgb, var(--text-color) 14%, transparent);
+  --ke-oxford: #4f6bed;
+  --ke-spanish: #e0563b;
+  --ke-wiktionary: #9b59b6;
+}
+
+/* ── Headword and frequency ─────────────────────────────────── */
+.headword-term { font-size: 1.6em; font-weight: 600; letter-spacing: -0.01em; }
+.entry + .entry { border-top: 1px solid var(--ke-line); }
+.frequency-group-item[data-details="Average"] { display: none; }
+.frequency-group-list { margin-bottom: 0.25em; }
+.frequency-group-tag { --tag-color: var(--ke-faint); --tag-text-color: var(--ke-muted); --tag-border-radius: 999px; }
+.frequency-group-tag > .tag-label { display: none !important; }
+.frequency-group-tag > .tag-body { background: var(--ke-faint); border-radius: 999px; color: var(--ke-muted); padding: 0 0.6em; }
+.frequency-group-tag > .tag-body::before { content: none !important; }
+.frequency-value::before { content: "#"; }
+.frequency-disambiguation, .frequency-separator { display: none !important; }
+
+/* ── Pronunciations: Oxford's US/UK inline; Wiktionary's on hover ─ */
+.pronunciation-group-list { list-style: none; padding: 0; margin: 0.25em 0 0.5em; }
+.pronunciation-group-tag-list { display: none; }
+.pronunciation-list { display: flex; flex-wrap: wrap; gap: 0.15em 1em; list-style: none; padding: 0; margin: 0; }
+.pronunciation { display: inline-flex; align-items: baseline; gap: 0.3em; }
+.pronunciation::marker { content: none; }
+.pronunciation-text-container { font-size: 1.15em; }
+.pronunciation-tag-list .tag { --tag-color: transparent; --tag-text-color: var(--ke-muted); }
+.pronunciation-tag-list .tag > .tag-label { padding: 0; font-weight: 600; }
+.pronunciation-tag-list { display: inline-flex; gap: 0.1em; }
+.pronunciation-tag-list .tag:not(:last-child)::after { content: ","; color: var(--ke-muted); }
+.pronunciation-group[data-dictionary="wty-en-en-ipa"] { margin-top: 0.15em; font-size: 0.85em; color: var(--ke-muted); }
+.pronunciation-group[data-dictionary="wty-en-en-ipa"] .pronunciation-text-container { font-size: 1em; }
+.pronunciation-group-list:has([data-dictionary="seth-oald-ipa"]) [data-dictionary="wty-en-en-ipa"] .pronunciation:nth-child(n+4) { display: none; }
+.pronunciation-group-list:has([data-dictionary="seth-oald-ipa"]) [data-dictionary="wty-en-en-ipa"]:has(.pronunciation:nth-child(4)) .pronunciation-list::after {
+  content: "+ more on hover"; font-size: 0.85em; opacity: 0.7;
+}
+.entry-body-section[data-section-type="pronunciations"]:hover [data-dictionary="wty-en-en-ipa"] .pronunciation { display: inline-flex !important; }
+.entry-body-section[data-section-type="pronunciations"]:hover [data-dictionary="wty-en-en-ipa"] .pronunciation-list::after { content: none !important; }
+
+/* ── Definitions: one card per entry, coloured by dictionary ──── */
+.definition-list { list-style: none; padding: 0; margin: 0; }
+.definition-item { margin: 0.4em 0; padding: 0.35em 0.6em; border-left: 3px solid var(--ke-dict, var(--ke-line)); border-radius: 0 6px 6px 0; background: var(--ke-faint); }
+.definition-item::marker { content: none; }
+.definition-item[data-dictionary="seth-oald-extra"] { --ke-dict: var(--ke-oxford); }
+.definition-item[data-dictionary="wty-en-es-gloss"] { --ke-dict: var(--ke-spanish); }
+.definition-item[data-dictionary="wty-en-en"] { --ke-dict: var(--ke-wiktionary); }
+
+.definition-tag-list { display: flex; flex-wrap: wrap; gap: 0.25em; margin-bottom: 0.2em; }
+.definition-tag-list .tag { --tag-color: var(--ke-faint); --tag-text-color: var(--ke-muted); --tag-border-radius: 999px; }
+.definition-tag-list .tag > .tag-label { padding: 0.05em 0.6em; }
+.definition-tag-list .tag[data-category="partOfSpeech"] {
+  --tag-color: color-mix(in srgb, var(--ke-dict, var(--accent-color)) 22%, transparent); --tag-text-color: var(--text-color);
+  font-style: italic;
+}
+.definition-tag-list .tag[data-category="3K"], .definition-tag-list .tag[data-category="5K"] {
+  --tag-color: color-mix(in srgb, #2e9e5b 25%, transparent); --tag-text-color: var(--text-color);
+}
+.definition-tag-list .tag[data-category="archaism"] { --tag-color: color-mix(in srgb, #d9534f 22%, transparent); --tag-text-color: var(--text-color); }
+/* The dictionary's name, once per run of entries */
+.definition-tag-list .tag[data-category="dictionary"] {
+  --tag-color: transparent; --tag-text-color: var(--ke-dict);
+  margin-left: auto; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+}
+.definition-item[data-dictionary="seth-oald-extra"] + .definition-item[data-dictionary="seth-oald-extra"] .tag[data-category="dictionary"],
+.definition-item[data-dictionary="wty-en-es-gloss"] + .definition-item[data-dictionary="wty-en-es-gloss"] .tag[data-category="dictionary"],
+.definition-item[data-dictionary="wty-en-en"] + .definition-item[data-dictionary="wty-en-en"] .tag[data-category="dictionary"] { display: none; }
+
+/* Senses */
+.gloss-list { padding-left: 1.4em; margin: 0; list-style: decimal; }
+.gloss-list[data-count="1"] { padding-left: 0; list-style: none; }
+.gloss-item::marker { color: var(--ke-dict); font-weight: 700; font-size: 0.85em; }
+.gloss-item + .gloss-item { margin-top: 0.3em; }
+
+/* Examples: set off, two at a time; hover a sense to see them all */
+ul[data-sc-custom-attr="examples"], div[data-sc-content="extra-info"] {
+  list-style: none; margin: 0.15em 0 0; padding-left: 0.6em;
+  border-left: 2px solid color-mix(in srgb, var(--ke-dict, var(--accent-color)) 45%, transparent);
+  color: var(--ke-muted); font-size: 0.92em;
+}
+ul[data-sc-custom-attr="examples"] > li { list-style: none; }
+ul[data-sc-custom-attr="examples"] > li:nth-child(n+3) { display: none; }
+ul[data-sc-custom-attr="examples"]:has(> li:nth-child(3))::after { content: "…"; }
+.gloss-item:hover ul[data-sc-custom-attr="examples"] > li { display: list-item; }
+.gloss-item:hover ul[data-sc-custom-attr="examples"]::after { content: none; }
+span[data-sc-content="bold-text"] { font-weight: 600; color: var(--text-color); }
+
+/* Spanish glosses: the English sense, then the translations on one line */
+div[data-sc-content="sense-label"] { font-size: 0.85em; color: var(--ke-muted); }
+ul[data-sc-content="glossary"] { display: flex; flex-wrap: wrap; gap: 0 0.45em; list-style: none; padding: 0; margin: 0; font-weight: 600; }
+ul[data-sc-content="glossary"] > li + li::before { content: "·"; margin-right: 0.45em; font-weight: 400; color: var(--ke-muted); }
+
+/* Wiktionary extras: compact */
+div[data-sc-content="preamble"] { font-size: 0.85em; color: var(--ke-muted); }
+div[data-sc-content="preamble"] details { display: inline-block; margin-right: 0.75em; vertical-align: top; }
+div[data-sc-content="preamble"] details[open] { display: block; }
+summary.gloss-sc-summary { cursor: pointer; font-size: 0.85em; color: var(--ke-muted); width: fit-content; }
+div[data-sc-content="related-words"] { display: flex; flex-direction: column; gap: 0.15em; margin-top: 0.3em; font-size: 0.88em; }
+div[data-sc-content="related-words"] ul { display: inline; padding: 0; }
+div[data-sc-content="related-words"] li { display: inline; }
+div[data-sc-content="related-words"] li + li::before { content: ", "; }
+div[data-sc-content="synonyms"]::before { content: "≈ "; color: var(--ke-muted); }
+div[data-sc-content="antonyms"]::before { content: "≠ "; color: var(--ke-muted); }
+div[data-sc-content="backlink"] { text-align: right; font-size: 0.75em; opacity: 0.6; }

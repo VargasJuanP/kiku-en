@@ -29,6 +29,18 @@ describe("splitByDictionary", () => {
     expect(doc.querySelectorAll(".yomitan-glossary > ol > li[data-dictionary]")).toHaveLength(2);
   });
 
+  it("names pages by the dictionary's alias in Yomitan, or a known name", () => {
+    expect(splitByDictionary(glossary).map((page) => page.label)).toEqual([
+      "Oxford Learner's",
+      "Wiktionary EN → ES",
+    ]);
+    const aliased = glossary.replaceAll("seth-oald-extra)</i>", "Oxford)</i>");
+    expect(splitByDictionary(aliased)[0]).toMatchObject({
+      dictionary: "seth-oald-extra",
+      label: "Oxford",
+    });
+  });
+
   it("returns nothing for fields not in Yomitan's format", () => {
     expect(splitByDictionary("<b>a definition</b>")).toEqual([]);
   });
@@ -48,6 +60,17 @@ describe("decorateGlossary", () => {
     const html = decorateGlossary(glossary, { showDictionary: true });
     expect(tags(html)).toContain("Oxford Learner's");
     expect(tags(html)).toContain("Wiktionary EN → ES");
+  });
+
+  it("drops the dictionary's alias from the tags", () => {
+    const aliased = glossary.replaceAll("seth-oald-extra)</i>", "Oxford)</i>");
+    expect(tags(decorateGlossary(aliased, { showDictionary: false }))).toEqual([
+      "Oxford 3000",
+      "verb",
+      "verb",
+      "noun",
+    ]);
+    expect(tags(decorateGlossary(aliased, { showDictionary: true }))).toContain("Oxford");
   });
 
   it("reads {glossary-first}, where the dictionary is the last tag", () => {

@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - IPA accent labels written as flag emoji are shown as text (US, UK, England),
   and a transcription repeated for the next accent is shown once.
 - README: recommended English dictionaries and their order.
+- Dictionary pages are named after the dictionary's alias in Yomitan.
+- `MiscInfo` is hidden when it's only the title of a Yomitan page
+  ("Yomitan Popup Preview", "word - Yomitan Search").
+
+### Added
+
+- `yomitan/popup.css`: custom CSS for Yomitan's popup, in the card's style.
 
 ## Kiku EN [0.1.0] - 2026-11-03
 

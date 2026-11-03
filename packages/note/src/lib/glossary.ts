@@ -1,7 +1,12 @@
 import { parseHtml } from "./dom";
 
 /** One dictionary's share of a Yomitan glossary. */
-export type DictionaryGlossary = { dictionary: string; html: string };
+export type DictionaryGlossary = {
+  dictionary: string;
+  /** The dictionary's alias in Yomitan, or a readable name for known dictionaries. */
+  label: string;
+  html: string;
+};
 
 /** Examples shown before the rest fold into a "+N examples" toggle. */
 const VISIBLE_EXAMPLES = 2;
@@ -63,14 +68,22 @@ export function dictionaryLabel(dictionary: string) {
 export function splitByDictionary(html: string): DictionaryGlossary[] {
   const doc = parseHtml(html);
   const styles = Array.from(doc.querySelectorAll("style"), (style) => style.outerHTML).join("");
-  const groups = new Map<string, string>();
+  const groups = new Map<string, { label: string; entries: string }>();
   for (const entry of doc.querySelectorAll("li[data-dictionary]")) {
     if (entry.parentElement?.closest("li[data-dictionary]")) continue;
     const dictionary = entry.getAttribute("data-dictionary") || "Glossary";
-    groups.set(dictionary, (groups.get(dictionary) ?? "") + entry.outerHTML);
+    const group = groups.get(dictionary);
+    if (group) {
+      group.entries += entry.outerHTML;
+    } else {
+      const alias = tagLine(entry)?.tags.at(-1);
+      const label = alias && alias !== dictionary ? alias : dictionaryLabel(dictionary);
+      groups.set(dictionary, { label, entries: entry.outerHTML });
+    }
   }
-  return Array.from(groups, ([dictionary, entries]) => ({
+  return Array.from(groups, ([dictionary, { label, entries }]) => ({
     dictionary,
+    label,
     html: `<div style="text-align: left;" class="yomitan-glossary"><ol>${styles}${entries}</ol></div>`,
   }));
 }
@@ -82,26 +95,20 @@ export function splitByDictionary(html: string): DictionaryGlossary[] {
 export function decorateGlossary(html: string, options: { showDictionary: boolean }): string {
   const doc = parseHtml(html);
 
-  for (const tagLine of doc.querySelectorAll("i")) {
-    const entry = tagLine.parentElement;
-    const isEntry = entry?.matches("li[data-dictionary], .yomitan-glossary");
-    if (!entry || !isEntry || !isFirstContent(tagLine)) continue;
-    const match = /^\((.*)\)$/.exec(tagLine.textContent?.trim() ?? "");
-    if (!match) continue;
-
-    const tags = match[1].split(/\s*,\s*/).filter(Boolean);
-    // {glossary-first} has no data-dictionary; the dictionary is the last tag there.
-    const dictionary = entry.getAttribute("data-dictionary") ?? tags.at(-1);
+  const entries = doc.querySelectorAll("li[data-dictionary], .yomitan-glossary");
+  for (const entry of entries) {
+    const line = tagLine(entry);
+    if (!line) continue;
+    // Yomitan ends the tags with the dictionary, by its alias if it has one.
+    const tags = line.tags.slice(0, -1);
+    const alias = line.tags.at(-1) ?? "";
     const chips = doc.createElement("span");
     chips.className = "definition-tags";
-    for (const tag of tags) {
-      if (tag === dictionary) continue;
-      chips.append(tagChip(doc, tag));
+    for (const tag of tags) chips.append(tagChip(doc, tag));
+    if (options.showDictionary && alias) {
+      chips.append(chip(doc, dictionaryLabel(alias), "definition-tag-dictionary"));
     }
-    if (options.showDictionary && dictionary) {
-      chips.append(chip(doc, dictionaryLabel(dictionary), "definition-tag-dictionary"));
-    }
-    tagLine.replaceWith(chips);
+    line.element.replaceWith(chips);
   }
 
   for (const examples of doc.querySelectorAll('ul[data-sc-custom-attr="examples"]')) {
@@ -127,6 +134,15 @@ export function glossaryContains(glossary: string, main: string) {
     (parseHtml(html).body.textContent ?? "").replace(/\s+/g, " ").trim();
   const mainText = text(main);
   return mainText.length > 0 && text(glossary).includes(mainText);
+}
+
+/** The "(verb, 3K, dictionary)" line Yomitan starts each entry with. */
+function tagLine(entry: Element) {
+  const element = Array.from(entry.children).find((child) => child.tagName === "I");
+  if (!element || !isFirstContent(element)) return undefined;
+  const match = /^\((.*)\)$/.exec(element.textContent?.trim() ?? "");
+  if (!match) return undefined;
+  return { element, tags: match[1].split(/\s*,\s*/).filter(Boolean) };
 }
 
 function isFirstContent(element: Element) {

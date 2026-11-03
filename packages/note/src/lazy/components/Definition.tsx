@@ -67,8 +67,8 @@ export function Definition() {
     }
 
     if (dictionaries.length > 0) {
-      for (const { dictionary, html } of dictionaries) {
-        p.push({ name: dictionaryLabel(dictionary), dictionary, html: decorate(html) });
+      for (const { dictionary, label, html } of dictionaries) {
+        p.push({ name: label, dictionary, html: decorate(html) });
       }
     } else if (glossary) {
       p.push({ name: "Glossary", html: decorate(glossary) });
