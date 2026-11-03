@@ -2,7 +2,7 @@ import { createSignal, For } from "solid-js";
 
 export function AnkiMobileDebug() {
   // @ts-expect-error: global variable
-  if (typeof KIKU_DEBUG === "boolean" && !KIKU_DEBUG) return null;
+  if (typeof KIKU_EN_DEBUG === "boolean" && !KIKU_EN_DEBUG) return null;
 
   const [$logs, $setLogs] = createSignal<string[]>([]);
   const [$divActive, $setDivActive] = createSignal(false);

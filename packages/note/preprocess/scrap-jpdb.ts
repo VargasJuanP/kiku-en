@@ -259,7 +259,7 @@ class JpdbScraper {
   }
 
   async gzipKanjiJson() {
-    const dest = join(paths["@/.jpdb/"], "_kiku_db_jpdb_kanji.json.gz");
+    const dest = join(paths["@/.jpdb/"], "_kikuen_db_jpdb_kanji.json.gz");
     await gzipFile(paths["@/.jpdb/kanji.json"], dest, false);
   }
 

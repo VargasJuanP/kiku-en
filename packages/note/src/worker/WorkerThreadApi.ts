@@ -313,7 +313,7 @@ export class WorkerThreadApi {
       const manifest = await this.dbMainManifest();
       const file = manifest.files[this.constants.tar["kiku_db_kanji_compact.json.gz"]];
       const buf = await this.main.fetchArrayBuffer(
-        `${this.assetsPath}/${this.constants.assets["_kiku_db_main.tar"]}`,
+        `${this.assetsPath}/${this.constants.assets["_kikuen_db_main.tar"]}`,
         { headers: { Range: `bytes=${file.start}-${file.end}` } },
         { range: { start: file.start, end: file.end, size: file.size } },
       );
@@ -346,7 +346,7 @@ export class WorkerThreadApi {
       const manifest = await this.dbMainManifest();
       const file = manifest.files[this.constants.tar["kiku_db_terms_compact.json.gz"]];
       const buf = await this.main.fetchArrayBuffer(
-        `${this.assetsPath}/${this.constants.assets["_kiku_db_main.tar"]}`,
+        `${this.assetsPath}/${this.constants.assets["_kikuen_db_main.tar"]}`,
         { headers: { Range: `bytes=${file.start}-${file.end}` } },
         { range: { start: file.start, end: file.end, size: file.size } },
       );
@@ -371,7 +371,7 @@ export class WorkerThreadApi {
     let manifest: KikuDbMainManifest;
     try {
       manifest = (await this.main.fetchJson(
-        `${this.assetsPath}/${this.constants.assets["_kiku_db_main_manifest.json"]}`,
+        `${this.assetsPath}/${this.constants.assets["_kikuen_db_main_manifest.json"]}`,
         { cache: "no-store" },
       )) as KikuDbMainManifest;
     } catch {
@@ -388,7 +388,7 @@ export class WorkerThreadApi {
     let manifest: KikuNotesManifest;
     try {
       manifest = (await this.main.fetchJson(
-        `${this.assetsPath}/${this.constants.assets["_kiku_notes_manifest.json"]}`,
+        `${this.assetsPath}/${this.constants.assets["_kikuen_notes_manifest.json"]}`,
         { cache: "no-store" },
       )) as KikuNotesManifest;
     } catch {

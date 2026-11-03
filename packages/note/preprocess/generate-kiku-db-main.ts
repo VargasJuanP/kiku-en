@@ -227,7 +227,7 @@ class Script {
       {
         cwd: paths["@/.db/"],
         portable: true,
-        file: paths["@/.db/_kiku_db_main.tar"],
+        file: paths["@/.db/_kikuen_db_main.tar"],
       },
       filesToInclude,
     );
@@ -240,7 +240,7 @@ class Script {
     };
 
     await tar.t({
-      file: paths["@/.db/_kiku_db_main.tar"],
+      file: paths["@/.db/_kikuen_db_main.tar"],
       onReadEntry(entry) {
         const headerSize = 512;
         const fileSize = entry.size;
@@ -266,7 +266,7 @@ class Script {
       },
     });
 
-    await writeFile(paths["@/.db/_kiku_db_main_manifest.json"], JSON.stringify(manifest, null, 2));
+    await writeFile(paths["@/.db/_kikuen_db_main_manifest.json"], JSON.stringify(manifest, null, 2));
   }
 }
 

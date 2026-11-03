@@ -12,7 +12,7 @@ export function useLoadPlugin() {
   async function getPlugin(assetsPath: string) {
     const mod = await import(
       /* @vite-ignore */
-      `${assetsPath}/${constants.assets["_kiku_plugin.js"]}`
+      `${assetsPath}/${constants.assets["_kikuen_plugin.js"]}`
     );
     return mod.plugin as KikuPlugin;
   }

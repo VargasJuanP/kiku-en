@@ -7,22 +7,22 @@ const COMMIT_SHA: string =
   typeof __COMMIT_SHA__ !== "undefined" ? __COMMIT_SHA__ : "unknown";
 
 const assets = {
-  "_kiku_config.json": "_kiku_config.json",
-  "_kiku_front.html": "_kiku_front.html",
-  "_kiku_back.html": "_kiku_back.html",
-  "_kiku_style.css": "_kiku_style.css",
-  "_kiku_notes_manifest.json": "_kiku_notes_manifest.json",
-  "_kiku_db_main.tar": "_kiku_db_main.tar",
-  "_kiku_db_main_manifest.json": "_kiku_db_main_manifest.json",
-  "_kiku_plugin.js": "_kiku_plugin.js",
+  "_kikuen_config.json": "_kikuen_config.json",
+  "_kikuen_front.html": "_kikuen_front.html",
+  "_kikuen_back.html": "_kikuen_back.html",
+  "_kikuen_style.css": "_kikuen_style.css",
+  "_kikuen_notes_manifest.json": "_kikuen_notes_manifest.json",
+  "_kikuen_db_main.tar": "_kikuen_db_main.tar",
+  "_kikuen_db_main_manifest.json": "_kikuen_db_main_manifest.json",
+  "_kikuen_plugin.js": "_kikuen_plugin.js",
 
-  "_kiku.js": "_kiku.js",
-  "_kiku_libs.js": "_kiku_libs.js",
-  "_kiku_shared.js": "_kiku_shared.js",
-  "_kiku_lazy.js": "_kiku_lazy.js",
-  "_kiku_worker.js": "_kiku_worker.js",
-  "_kiku_plugin.css": "_kiku_plugin.css",
-  "_kiku.css": "_kiku.css",
+  "_kikuen.js": "_kikuen.js",
+  "_kikuen_libs.js": "_kikuen_libs.js",
+  "_kikuen_shared.js": "_kikuen_shared.js",
+  "_kikuen_lazy.js": "_kikuen_lazy.js",
+  "_kikuen_worker.js": "_kikuen_worker.js",
+  "_kikuen_plugin.css": "_kikuen_plugin.css",
+  "_kikuen.css": "_kikuen.css",
 };
 
 export const constants = {
@@ -31,9 +31,9 @@ export const constants = {
   NOTE_TYPE: "Kiku",
   CARD_TYPE: "Mining",
   key: {
-    "kiku-config": "kiku-config",
-    "kiku-latest-version": "kiku-latest-version",
-    "kiku-latest-version-checked": "kiku-latest-version-checked",
+    "kikuen-config": "kikuen-config",
+    "kikuen-latest-version": "kikuen-latest-version",
+    "kikuen-latest-version-checked": "kikuen-latest-version-checked",
   },
   assets,
   tar: {
@@ -41,22 +41,22 @@ export const constants = {
     "kiku_db_terms_compact.json.gz": "kiku_db_terms_compact.json.gz",
   },
   IMPORTANT_FILES: [
-    assets["_kiku.js"],
-    assets["_kiku_libs.js"],
-    assets["_kiku_shared.js"],
-    assets["_kiku_lazy.js"],
-    assets["_kiku_worker.js"],
-    assets["_kiku_plugin.js"],
-    assets["_kiku_plugin.css"],
+    assets["_kikuen.js"],
+    assets["_kikuen_libs.js"],
+    assets["_kikuen_shared.js"],
+    assets["_kikuen_lazy.js"],
+    assets["_kikuen_worker.js"],
+    assets["_kikuen_plugin.js"],
+    assets["_kikuen_plugin.css"],
 
-    assets["_kiku_front.html"],
-    assets["_kiku_back.html"],
-    assets["_kiku_style.css"],
-    assets["_kiku.css"],
+    assets["_kikuen_front.html"],
+    assets["_kikuen_back.html"],
+    assets["_kikuen_style.css"],
+    assets["_kikuen.css"],
 
-    assets["_kiku_db_main.tar"],
-    assets["_kiku_db_main_manifest.json"],
-    assets["_kiku_notes_manifest.json"],
+    assets["_kikuen_db_main.tar"],
+    assets["_kikuen_db_main_manifest.json"],
+    assets["_kikuen_notes_manifest.json"],
   ],
 };
 

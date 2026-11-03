@@ -146,7 +146,7 @@ function handleKeyup(confetti, e) {
   }
 
   if (CONFIG.failKey.includes(e.key)) {
-    const host = document.querySelector("#kiku-host");
+    const host = document.querySelector("#kikuen-host");
     const shadow = host?.shadowRoot;
     const el = shadow?.querySelector(".expression");
     if (el instanceof HTMLElement) {

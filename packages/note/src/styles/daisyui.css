@@ -1,5 +1,5 @@
 @plugin "./daisyui-shim.ts" {
-  root: "#kiku-root";
+  root: "#kikuen-root";
   themes: all;
   include:
     properties, reset, rootcolor, rootscrollgutter, rootscrolllock, svg, scrollbar, button, input,
@@ -28,7 +28,7 @@
 
 /* prettier-ignore */
 @layer base {
-  #kiku-host::part(root), #kiku-root, [data-theme-preview] {
+  #kikuen-host::part(root), #kikuen-root, [data-theme-preview] {
     --color-base-content-subtle-100: color-mix( in srgb, var(--color-base-content) 10%, var(--color-base-100));
     --color-base-content-subtle-200: color-mix( in srgb, var(--color-base-content) 20%, var(--color-base-100));
     --color-base-content-subtle-300: color-mix( in srgb, var(--color-base-content) 30%, var(--color-base-100));

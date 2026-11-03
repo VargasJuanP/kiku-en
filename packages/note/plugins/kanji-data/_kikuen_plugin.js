@@ -1,4 +1,4 @@
-import kanjiDataPlugin from "./_kiku-plugin-kanji-data.js";
+import kanjiDataPlugin from "./_kikuen-plugin-kanji-data.js";
 
 export const plugin = {
   ...kanjiDataPlugin({

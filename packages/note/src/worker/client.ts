@@ -25,13 +25,13 @@ export async function createWorkerApi(
 
   let worker: Worker;
   if (opts.assetsPath !== window.location.origin && !import.meta.env.DEV) {
-    worker = new Worker(`${opts.assetsPath}/_kiku_worker.js`, {
+    worker = new Worker(`${opts.assetsPath}/_kikuen_worker.js`, {
       type: "module",
     });
   } else if (opts.workerPath) {
     worker = new Worker(opts.workerPath, { type: "module" });
   } else {
-    worker = new Worker(new URL("./_kiku_worker.ts", import.meta.url), {
+    worker = new Worker(new URL("./_kikuen_worker.ts", import.meta.url), {
       type: "module",
     });
   }

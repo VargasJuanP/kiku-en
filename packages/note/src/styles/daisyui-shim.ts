@@ -18,12 +18,12 @@ function getThemeNames(selector: string): string[] {
 
 const createThemeSelector = (theme: DaisyUITheme) => {
   const selectorList = [
-    `#kiku-root[data-theme="${theme}"]`,
-    `:host([data-dark-mode]) #kiku-root[data-theme-dark="${theme}"]`,
-    `.nightMode #kiku-root[data-theme-dark="${theme}"]`,
-    // with #kiku-host::part(root)
-    `#kiku-host[data-theme="${theme}"]::part(root)`,
-    `.nightMode #kiku-host[data-theme-dark="${theme}"]::part(root)`,
+    `#kikuen-root[data-theme="${theme}"]`,
+    `:host([data-dark-mode]) #kikuen-root[data-theme-dark="${theme}"]`,
+    `.nightMode #kikuen-root[data-theme-dark="${theme}"]`,
+    // with #kikuen-host::part(root)
+    `#kikuen-host[data-theme="${theme}"]::part(root)`,
+    `.nightMode #kikuen-host[data-theme-dark="${theme}"]::part(root)`,
     // preview
     `[data-theme-preview="${theme}"]`,
   ];

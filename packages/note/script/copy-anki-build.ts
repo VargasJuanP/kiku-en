@@ -10,12 +10,12 @@ class Script {
 
   async copyAssetsFromDistToAnkiBuild() {
     const ASSETS = [
-      [paths["@/dist/_kiku.js"], paths["@/.anki-build/_kiku.js"]],
-      [paths["@/dist/_kiku_lazy.js"], paths["@/.anki-build/_kiku_lazy.js"]],
-      [paths["@/dist/_kiku_libs.js"], paths["@/.anki-build/_kiku_libs.js"]],
-      [paths["@/dist/_kiku_shared.js"], paths["@/.anki-build/_kiku_shared.js"]],
-      [paths["@/dist/_kiku_worker.js"], paths["@/.anki-build/_kiku_worker.js"]],
-      [paths["@/dist/_kiku.css"], paths["@/.anki-build/_kiku.css"]],
+      [paths["@/dist/_kikuen.js"], paths["@/.anki-build/_kikuen.js"]],
+      [paths["@/dist/_kikuen_lazy.js"], paths["@/.anki-build/_kikuen_lazy.js"]],
+      [paths["@/dist/_kikuen_libs.js"], paths["@/.anki-build/_kikuen_libs.js"]],
+      [paths["@/dist/_kikuen_shared.js"], paths["@/.anki-build/_kikuen_shared.js"]],
+      [paths["@/dist/_kikuen_worker.js"], paths["@/.anki-build/_kikuen_worker.js"]],
+      [paths["@/dist/_kikuen.css"], paths["@/.anki-build/_kikuen.css"]],
     ] as const;
 
     console.log("\n📁 Copying assets from dist to .anki-build...");
@@ -37,17 +37,17 @@ class Script {
 
   async copyAnkiBuild() {
     const FILES = [
-      "_kiku_front.html",
-      "_kiku_back.html",
-      "_kiku_style.css",
-      "_kiku.css",
-      "_kiku.js",
-      "_kiku_lazy.js",
-      "_kiku_libs.js",
-      "_kiku_shared.js",
-      "_kiku_worker.js",
-      "_kiku_plugin.js",
-      "_kiku_plugin.css",
+      "_kikuen_front.html",
+      "_kikuen_back.html",
+      "_kikuen_style.css",
+      "_kikuen.css",
+      "_kikuen.js",
+      "_kikuen_lazy.js",
+      "_kikuen_libs.js",
+      "_kikuen_shared.js",
+      "_kikuen_worker.js",
+      "_kikuen_plugin.js",
+      "_kikuen_plugin.css",
     ];
 
     console.log("\n📁 Copying ANKI BUILD files...");
@@ -55,7 +55,7 @@ class Script {
   }
 
   async copyDatabases() {
-    const DBS = ["_kiku_db_main.tar", "_kiku_db_main_manifest.json"];
+    const DBS = ["_kikuen_db_main.tar", "_kikuen_db_main_manifest.json"];
 
     console.log("\n📁 Copying DATABASES...");
     await this.copyFiles(DBS, paths["@/.db/"]);

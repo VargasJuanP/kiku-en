@@ -7,17 +7,17 @@ export function getTemplatePreview(options: {
   modVertical: string;
 }): string {
   let template = `
-<kiku-host-anki
-  id="kiku-host"
+<kikuen-host-anki
+  id="kikuen-host"
   side="__SIDE__"
   ssr
   data-theme="__DATA_THEME__"
   data-theme-dark="__DATA_THEME_DARK__"
-></kiku-host-anki>
+></kikuen-host-anki>
 <div
-  id="kiku-root"
+  id="kikuen-root"
   part="root"
-  data-kiku-cloak
+  data-kikuen-cloak
   data-side="__SIDE__"
   data-theme="__DATA_THEME__"
   data-theme-dark="__DATA_THEME_DARK__"

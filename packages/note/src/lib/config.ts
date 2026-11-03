@@ -281,17 +281,17 @@ export function updateConfigState({
 }
 
 export const LIGHT_VARS_REGEX =
-  /\.card:has\(> #qa, #content > #qa\), #kiku-host::part\(root\), #kiku-root \{[^]*?\}/;
+  /\.card:has\(> #qa, #content > #qa\), #kikuen-host::part\(root\), #kikuen-root \{[^]*?\}/;
 export const DARK_VARS_REGEX =
-  /\.card:has\(> #qa, #content > #qa\)\.nightMode, \.nightMode #kiku-host::part\(root\), \.nightMode #kiku-root, :host\(\[data-dark-mode\]\) #kiku-root \{[^]*?\}/;
+  /\.card:has\(> #qa, #content > #qa\)\.nightMode, \.nightMode #kikuen-host::part\(root\), \.nightMode #kikuen-root, :host\(\[data-dark-mode\]\) #kikuen-root \{[^]*?\}/;
 
 export function generateCssVars(vars: Record<string, string>): string {
-  return objectToCss(".card:has(> #qa, #content > #qa), #kiku-host::part(root), #kiku-root", vars);
+  return objectToCss(".card:has(> #qa, #content > #qa), #kikuen-host::part(root), #kikuen-root", vars);
 }
 
 export function generateCssVarsDark(vars: Record<string, string>): string {
   return objectToCss(
-    ".card:has(> #qa, #content > #qa).nightMode, .nightMode #kiku-host::part(root), .nightMode #kiku-root, :host([data-dark-mode]) #kiku-root",
+    ".card:has(> #qa, #content > #qa).nightMode, .nightMode #kikuen-host::part(root), .nightMode #kikuen-root, :host([data-dark-mode]) #kikuen-root",
     vars,
   );
 }

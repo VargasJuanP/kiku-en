@@ -235,7 +235,7 @@ declare global {
     prototype: AnkiDroidAPI;
   };
 
-  var KIKU:
+  var KIKU_EN:
     | ({
         aborter?: AbortController;
         dispose?: () => void;

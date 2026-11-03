@@ -10,15 +10,15 @@ class Script {
     ERROR_SRC: paths["@/template/error.html"],
     STYLE_SRC: paths["@/template/style.css"],
 
-    FRONT_DEST: paths["@/.anki-build/_kiku_front.html"],
-    BACK_DEST: paths["@/.anki-build/_kiku_back.html"],
-    STYLE_DEST: paths["@/.anki-build/_kiku_style.css"],
+    FRONT_DEST: paths["@/.anki-build/_kikuen_front.html"],
+    BACK_DEST: paths["@/.anki-build/_kikuen_back.html"],
+    STYLE_DEST: paths["@/.anki-build/_kikuen_style.css"],
 
-    PLUGIN_SRC: paths["@/template/_kiku_plugin.js"],
-    PLUGIN_DEST: paths["@/.anki-build/_kiku_plugin.js"],
+    PLUGIN_SRC: paths["@/template/_kikuen_plugin.js"],
+    PLUGIN_DEST: paths["@/.anki-build/_kikuen_plugin.js"],
 
-    CSS_PLUGIN_SRC: paths["@/template/_kiku_plugin.css"],
-    CSS_PLUGIN_DEST: paths["@/.anki-build/_kiku_plugin.css"],
+    CSS_PLUGIN_SRC: paths["@/template/_kikuen_plugin.css"],
+    CSS_PLUGIN_DEST: paths["@/.anki-build/_kikuen_plugin.css"],
   };
 
   async ensureDestDir() {

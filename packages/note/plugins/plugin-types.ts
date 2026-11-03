@@ -126,7 +126,7 @@ export type Ctx = {
 /**
  * The main interface for a Kiku Plugin module.
  *
- * To create a plugin, your `_kiku_plugin.js` file must export a
+ * To create a plugin, your `_kikuen_plugin.js` file must export a
  * constant named `plugin` that satisfies this interface.
  */
 export type KikuPlugin = {

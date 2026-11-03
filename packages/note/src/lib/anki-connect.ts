@@ -40,22 +40,22 @@ export const AnkiConnect = {
 
   saveConfig: async (config: KikuConfig) => {
     await AnkiConnect.invoke("storeMediaFile", {
-      filename: constants.assets["_kiku_config.json"],
+      filename: constants.assets["_kikuen_config.json"],
       data: base64.encodeString(JSON.stringify(config)),
     });
 
     const [frontRes, backRes, styleRes] = await Promise.all([
-      fetch(constants.assets["_kiku_front.html"], { cache: "no-store" }),
-      fetch(constants.assets["_kiku_back.html"], { cache: "no-store" }),
-      fetch(constants.assets["_kiku_style.css"], { cache: "no-store" }),
+      fetch(constants.assets["_kikuen_front.html"], { cache: "no-store" }),
+      fetch(constants.assets["_kikuen_back.html"], { cache: "no-store" }),
+      fetch(constants.assets["_kikuen_style.css"], { cache: "no-store" }),
     ]);
 
     if (!frontRes.ok || !backRes.ok || !styleRes.ok) {
       throw new Error(
         `Failed to load template files: ${[
-          !frontRes.ok && constants.assets["_kiku_front.html"],
-          !backRes.ok && constants.assets["_kiku_back.html"],
-          !styleRes.ok && constants.assets["_kiku_style.css"],
+          !frontRes.ok && constants.assets["_kikuen_front.html"],
+          !backRes.ok && constants.assets["_kikuen_back.html"],
+          !styleRes.ok && constants.assets["_kikuen_style.css"],
         ]
           .filter(Boolean)
           .join(", ")}`,
@@ -110,10 +110,10 @@ export const AnkiConnect = {
 
   getKikuFiles: async () => {
     const res = (await AnkiConnect.invoke("getMediaFilesNames", {
-      pattern: "_kiku*",
+      pattern: "_kikuen*",
     })) as { result: string[] };
     const sorted = res.result
-      .filter((v) => !v.startsWith("_kiku-plugin"))
+      .filter((v) => !v.startsWith("_kikuen-plugin"))
       .sort((a: string, b: string) => {
         // Extract the last extension (e.g. "json", "js", "gz")
         const extA = a.split(".").pop();

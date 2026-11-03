@@ -29,7 +29,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: paths["@/src/index.tsx"],
-      fileName: "_kiku",
+      fileName: "_kikuen",
       formats: ["es"],
     },
     copyPublicDir: false,
@@ -46,8 +46,8 @@ export default defineConfig({
                 const result = /node_modules/.test(id);
                 return result;
               },
-              // _kiku_libs contains modules that is imported from node_modules
-              name: "_kiku_libs",
+              // _kikuen_libs contains modules that is imported from node_modules
+              name: "_kikuen_libs",
             },
             {
               test: (id) => {
@@ -55,16 +55,16 @@ export default defineConfig({
                   /src\/lib/.test(id) || /src\/hooks/.test(id) || /src\/contexts/.test(id);
                 return result;
               },
-              // _kiku_shared is module that is used by _kiku.js and _kiku_lazy.js
-              name: "_kiku_shared",
+              // _kikuen_shared is module that is used by _kikuen.js and _kikuen_lazy.js
+              name: "_kikuen_shared",
             },
             {
               test: (id) => {
                 const result = /src\/lazy/.test(id);
                 return result;
               },
-              // _kiku_lazy contains modules that is imported from src/lazy
-              name: "_kiku_lazy",
+              // _kikuen_lazy contains modules that is imported from src/lazy
+              name: "_kikuen_lazy",
             },
           ],
         },

@@ -17,7 +17,7 @@
   scrollbar-gutter: stable;
 }
 
-[data-kiku-cloak] {
+[data-kikuen-cloak] {
   visibility: visible !important;
   opacity: 1 !important;
 }

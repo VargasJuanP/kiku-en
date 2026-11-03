@@ -18,7 +18,7 @@
   --spacing-8: 2rem;
 }
 
-.kiku-plugin-kanji-data {
+.kikuen-plugin-kanji-data {
   color: var(--color-base-content-calm);
 
   .extra-info-container {
@@ -278,7 +278,7 @@
 }
 
 @media (min-width: 640px) {
-  .kiku-plugin-kanji-data {
+  .kikuen-plugin-kanji-data {
     .extra-info-container {
       font-size: var(--text-lg);
     }
@@ -317,7 +317,7 @@
     }
   }
 
-  .tooltip .kiku-plugin-kanji-data {
+  .tooltip .kikuen-plugin-kanji-data {
     .extra-info-container {
       font-size: var(--text-base);
     }

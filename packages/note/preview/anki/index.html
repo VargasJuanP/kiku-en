@@ -45,8 +45,8 @@
     <div id="_mark" hidden>&#x2605;</div>
     <div id="_flag" hidden>&#x2691;</div>
     <div id="qa">
-      <kiku-host-anki side="front"></kiku-host-anki>
-      <div id="kiku-root" part="root">
+      <kikuen-host-anki side="front"></kikuen-host-anki>
+      <div id="kikuen-root" part="root">
       </div>
     </div>
 
@@ -55,7 +55,7 @@
 
       const params = new URLSearchParams(window.location.search);
       const side = (params.get("side") || "back");
-      document.querySelector("kiku-host-anki").setAttribute("side", side);
+      document.querySelector("kikuen-host-anki").setAttribute("side", side);
 
     </script>
   </body>

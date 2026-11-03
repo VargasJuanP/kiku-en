@@ -2,7 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { paths } from "#/tools/paths.ts";
 
-const DIST_CSS = paths["@/dist/_kiku.css"];
+const DIST_CSS = paths["@/dist/_kikuen.css"];
 const SOURCE_CSS = join(paths["@/src/"], "styles/tailwind-property.css");
 
 async function run() {

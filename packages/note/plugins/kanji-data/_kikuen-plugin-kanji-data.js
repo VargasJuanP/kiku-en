@@ -124,7 +124,7 @@ let kanjiDataPromise = null;
  */
 const fetchKanjiData = async () => {
   if (kanjiDataPromise) return kanjiDataPromise;
-  kanjiDataPromise = fetch("_kiku-plugin-kanji-data.json")
+  kanjiDataPromise = fetch("_kikuen-plugin-kanji-data.json")
     .then((res) => res.json())
     .then((data) => {
       /** @type {Record<string, MinimizedKanjiData>} */
@@ -536,7 +536,7 @@ export default (options) => {
             [h("div", { class: "font-bold text-base-content-calm" }, collapseTitle)],
           ),
           h("div", { class: "collapse-content p-0" }, [
-            h("div", { class: "kiku-plugin-kanji-data" }, [
+            h("div", { class: "kikuen-plugin-kanji-data" }, [
               h("div", { class: "extra-info-container" }, [
                 h(MetadataSection, { data: k }),
                 h(MeaningsSection, { data: k }),
@@ -563,7 +563,7 @@ export default (options) => {
       function Style() {
         return h("link", {
           rel: "stylesheet",
-          href: "_kiku-plugin-kanji-data.css",
+          href: "_kikuen-plugin-kanji-data.css",
         });
       }
 

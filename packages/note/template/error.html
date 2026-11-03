@@ -1,12 +1,12 @@
-<template id="kiku-error">
+<template id="kikuen-error">
   <span>Failed to render card.</span>
-  <span> <b>Error Name:</b> <span data-kiku-error-name></span> </span>
-  <span> <b>Error Message:</b> <span data-kiku-error-message></span> </span>
-  <span> <b>Error Cause:</b> <span data-kiku-error-cause></span> </span>
+  <span> <b>Error Name:</b> <span data-kikuen-error-name></span> </span>
+  <span> <b>Error Message:</b> <span data-kikuen-error-message></span> </span>
+  <span> <b>Error Cause:</b> <span data-kikuen-error-cause></span> </span>
   <span>
     <b>Error Stack:</b><br />
     <pre
-      data-kiku-error-stack
+      data-kikuen-error-stack
       style="
         white-space: pre-wrap;
         background: oklch(82% 0.189 84.429);
@@ -47,7 +47,7 @@
         textAlign: "center",
       });
 
-      const errorTemplate = document.querySelector("#kiku-error");
+      const errorTemplate = document.querySelector("#kikuen-error");
       if (!(errorTemplate instanceof HTMLTemplateElement)) return;
 
       const fragment = errorTemplate.content.cloneNode(true);
@@ -57,10 +57,10 @@
           if (el) el.textContent = value;
         };
 
-        setText("[data-kiku-error-name]", error.name);
-        setText("[data-kiku-error-message]", error.message);
-        setText("[data-kiku-error-cause]", String(error.cause ?? "N/A"));
-        setText("[data-kiku-error-stack]", error.stack ?? "");
+        setText("[data-kikuen-error-name]", error.name);
+        setText("[data-kikuen-error-message]", error.message);
+        setText("[data-kikuen-error-cause]", String(error.cause ?? "N/A"));
+        setText("[data-kikuen-error-stack]", error.stack ?? "");
       }
 
       document.body.replaceChildren(fragment);
@@ -70,9 +70,9 @@
       "error",
       (event) => {
         if (!(event.target instanceof HTMLScriptElement)) return;
-        if (event.target.id !== "kiku-script") return;
+        if (event.target.id !== "kikuen-script") return;
         window.renderErrorFallback?.(
-          new Error("Failed to load _kiku.js. Did you delete Kiku files without reinstalling?"),
+          new Error("Failed to load _kikuen.js. Did you delete Kiku files without reinstalling?"),
         );
       },
       true,

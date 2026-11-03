@@ -1,4 +1,4 @@
-import { JapaneseMap } from "./_kiku-plugin-japanese-prefectures.js";
+import { JapaneseMap } from "./_kikuen-plugin-japanese-prefectures.js";
 
 /**
  * @import { KikuPlugin } from "#/plugins/plugin-types";

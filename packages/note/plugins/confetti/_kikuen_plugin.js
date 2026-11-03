@@ -5,6 +5,6 @@
 /** @type { KikuPlugin } */
 export const plugin = {
   onPluginLoad: () => {
-    import("./_kiku-plugin-confetti.js").then((mod) => mod.setupConfetti()).catch(() => {});
+    import("./_kikuen-plugin-confetti.js").then((mod) => mod.setupConfetti()).catch(() => {});
   },
 };

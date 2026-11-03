@@ -7,7 +7,7 @@ const __dirname = import.meta.dirname;
 
 function getTemplateSnippet(html: string): string {
   const lines = html.split("\n");
-  const start = lines.findIndex((l) => l.trim().startsWith("<kiku-host-anki"));
+  const start = lines.findIndex((l) => l.trim().startsWith("<kikuen-host-anki"));
   const end = lines.findIndex((l) => l.includes("<!-- Do not modify"));
   return lines.slice(start, end).join("\n");
 }

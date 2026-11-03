@@ -176,7 +176,7 @@ export abstract class KikuHost extends HTMLElement {
 }
 
 export class KikuHostAnki extends KikuHost {
-  logger = globalThis.KIKU?.logger ?? new Logger();
+  logger = globalThis.KIKU_EN?.logger ?? new Logger();
   aborter: AbortController;
   config: KikuConfig | undefined | null;
   env = this.getEnv();
@@ -188,18 +188,18 @@ export class KikuHostAnki extends KikuHost {
   #kikuPluginCSSReady = false;
   constructor() {
     super();
-    if (globalThis.KIKU?.aborter) globalThis.KIKU.aborter.abort();
+    if (globalThis.KIKU_EN?.aborter) globalThis.KIKU_EN.aborter.abort();
     this.aborter = new AbortController();
 
-    globalThis.KIKU ??= {};
-    globalThis.KIKU.aborter = this.aborter;
-    globalThis.KIKU.logger = this.logger;
+    globalThis.KIKU_EN ??= {};
+    globalThis.KIKU_EN.aborter = this.aborter;
+    globalThis.KIKU_EN.logger = this.logger;
 
     this.assetsPath = this.getAssetsPath();
 
     const qa = document.querySelector("#qa") as HTMLElement;
-    const root = document.querySelector("#kiku-root") as HTMLElement;
-    if (!qa || !root) throw new Error("#qa or #kiku-root not found");
+    const root = document.querySelector("#kikuen-root") as HTMLElement;
+    if (!qa || !root) throw new Error("#qa or #kikuen-root not found");
     this.qa = qa;
     this.root = root;
   }
@@ -272,7 +272,7 @@ export class KikuHostAnki extends KikuHost {
   render() {
     const { logger, aborter, shadow, config, root, env } = this;
     if (config === undefined || !this.#kikuCSSReady || !this.#kikuPluginCSSReady) return;
-    if (globalThis.KIKU?.dispose) globalThis.KIKU.dispose();
+    if (globalThis.KIKU_EN?.dispose) globalThis.KIKU_EN.dispose();
 
     const rootDataset = this.getRootDataSet();
     const ankiFields = this.getAnkiFields();
@@ -284,9 +284,9 @@ export class KikuHostAnki extends KikuHost {
       ankiFields,
       config: config ?? undefined,
       aborter,
-      ankiDroidAPI: globalThis.KIKU?.ankiDroidAPI,
+      ankiDroidAPI: globalThis.KIKU_EN?.ankiDroidAPI,
       logger,
-      cacheStore: globalThis.KIKU,
+      cacheStore: globalThis.KIKU_EN,
       assetsPath: this.assetsPath,
       isAnkiWeb: env.isAnkiWeb,
       rootDataset,
@@ -296,7 +296,7 @@ export class KikuHostAnki extends KikuHost {
       isAnkiDroid: env.isAnkiDroid,
     });
 
-    if (globalThis.KIKU) Object.assign(globalThis.KIKU, res);
+    if (globalThis.KIKU_EN) Object.assign(globalThis.KIKU_EN, res);
     if (import.meta.env.DEV) root.dataset.side = this.side;
   }
 
@@ -304,15 +304,15 @@ export class KikuHostAnki extends KikuHost {
     const { logger } = this;
     let config: KikuConfig | null = null;
     try {
-      const cache = sessionStorage.getItem(constants.key["kiku-config"]);
+      const cache = sessionStorage.getItem(constants.key["kikuen-config"]);
       if (cache) {
         config = validateConfig(JSON.parse(cache), logger);
         logger.info("[init] config loaded from sessionStorage");
       } else {
-        const res = await fetch(constants.assets["_kiku_config.json"], { cache: "no-store" });
+        const res = await fetch(constants.assets["_kikuen_config.json"], { cache: "no-store" });
         const json = await res.json();
         config = validateConfig(json, logger);
-        sessionStorage.setItem(constants.key["kiku-config"], JSON.stringify(config));
+        sessionStorage.setItem(constants.key["kikuen-config"], JSON.stringify(config));
         logger.info("[init] config fetched and cached");
       }
     } catch (e) {
@@ -343,18 +343,18 @@ export class KikuHostAnki extends KikuHost {
   }
 
   setupUnload() {
-    if (globalThis.KIKU && !globalThis.KIKU?.unload && !import.meta.env.DEV) {
-      globalThis.KIKU.unload = () => {
+    if (globalThis.KIKU_EN && !globalThis.KIKU_EN?.unload && !import.meta.env.DEV) {
+      globalThis.KIKU_EN.unload = () => {
         sessionStorage.clear();
       };
-      window.addEventListener("unload", globalThis.KIKU.unload);
+      window.addEventListener("unload", globalThis.KIKU_EN.unload);
     }
   }
 
   setupAnkiDroidAPI() {
     const { logger } = this;
-    if (globalThis.KIKU && !globalThis.KIKU.ankiDroidAPI && typeof AnkiDroidJS !== "undefined") {
-      globalThis.KIKU.ankiDroidAPI = new AnkiDroidJS({
+    if (globalThis.KIKU_EN && !globalThis.KIKU_EN.ankiDroidAPI && typeof AnkiDroidJS !== "undefined") {
+      globalThis.KIKU_EN.ankiDroidAPI = new AnkiDroidJS({
         version: "0.0.3",
         developer: "youyoumu",
       });
@@ -373,7 +373,7 @@ export class KikuHostAnki extends KikuHost {
   }
 
   removeKikuCss() {
-    document.querySelector("#kiku-css")?.remove();
+    document.querySelector("#kikuen-css")?.remove();
   }
 
   getRootDataSet() {
@@ -401,25 +401,25 @@ export class KikuHostAnki extends KikuHost {
 
   async getKikuCSSStyleSheet() {
     const { aborter } = this;
-    let css = globalThis.KIKU?.kikuCSSStyleSheet;
+    let css = globalThis.KIKU_EN?.kikuCSSStyleSheet;
     if (css) return css;
 
-    const res = await fetch("./_kiku.css", { signal: aborter.signal });
+    const res = await fetch("./_kikuen.css", { signal: aborter.signal });
     const text = await res.text();
     css = new CSSStyleSheet();
     css.replaceSync(text);
-    if (globalThis.KIKU) globalThis.KIKU.kikuCSSStyleSheet = css;
+    if (globalThis.KIKU_EN) globalThis.KIKU_EN.kikuCSSStyleSheet = css;
 
     return css;
   }
 
   async getKikuPluginCSSStyleSheet() {
     const { aborter, logger } = this;
-    let css = globalThis.KIKU?.kikuPluginCSSStyleSheet;
+    let css = globalThis.KIKU_EN?.kikuPluginCSSStyleSheet;
     if (css) return css;
 
     try {
-      const res = await fetch("./_kiku_plugin.css", { signal: aborter.signal });
+      const res = await fetch("./_kikuen_plugin.css", { signal: aborter.signal });
       const text = await res.text();
       css = new CSSStyleSheet();
       css.replaceSync(text);
@@ -429,7 +429,7 @@ export class KikuHostAnki extends KikuHost {
         e instanceof Error ? e.message : e,
       );
     }
-    if (globalThis.KIKU) globalThis.KIKU.kikuPluginCSSStyleSheet = css;
+    if (globalThis.KIKU_EN) globalThis.KIKU_EN.kikuPluginCSSStyleSheet = css;
 
     return css;
   }
@@ -442,10 +442,10 @@ export class KikuHostAnki extends KikuHost {
     }
     logger.debug("[init] adding kiku CSSStyleSheet");
     document.adoptedStyleSheets = [...document.adoptedStyleSheets, css];
-    if (qa && globalThis.KIKU && !globalThis.KIKU.kikuCSSStyleSheetObserver) {
+    if (qa && globalThis.KIKU_EN && !globalThis.KIKU_EN.kikuCSSStyleSheetObserver) {
       const observer = new MutationObserver(() => {
         queueMicrotask(() => {
-          if (!document.querySelector("#kiku-host")) {
+          if (!document.querySelector("#kikuen-host")) {
             logger.debug("[init] removing kiku CSSStyleSheet");
             document.adoptedStyleSheets = document.adoptedStyleSheets.filter(
               (sheet) => sheet !== css,
@@ -454,7 +454,7 @@ export class KikuHostAnki extends KikuHost {
         });
       });
       observer.observe(qa, { childList: true });
-      globalThis.KIKU.kikuCSSStyleSheetObserver = observer;
+      globalThis.KIKU_EN.kikuCSSStyleSheetObserver = observer;
     }
   }
 
@@ -497,7 +497,7 @@ export class KikuHostAnki extends KikuHost {
   }
 }
 
-customElements.define("kiku-host-anki", KikuHostAnki);
+customElements.define("kikuen-host-anki", KikuHostAnki);
 
 export { generateCssVars, generateCssVarsDark, getCssVar, getCssVarDark } from "./lib/config.ts";
 export { defaultConfig } from "./lib/default-config.ts";

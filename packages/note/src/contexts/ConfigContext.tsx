@@ -27,7 +27,7 @@ export function ConfigContextProvider(props: { children: JSX.Element; initialCon
     if (!root || !host) throw new Error("Missing root or host");
     updateConfigState({ root, host, config, styleTags });
     AnkiConnect.changeAddress(config.ankiConnectAddress);
-    sessionStorage.setItem(constants.key["kiku-config"], JSON.stringify(config));
+    sessionStorage.setItem(constants.key["kikuen-config"], JSON.stringify(config));
   });
 
   createEffect(
