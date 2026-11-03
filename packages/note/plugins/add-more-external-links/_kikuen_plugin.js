@@ -16,7 +16,7 @@ export const plugin = {
       url.searchParams.set("query", props.ctx.$ankiFields.Expression);
       return html`<a href=${url.toString()} title="Tatoeba: example sentences">
         <span
-          class="inline-flex items-center justify-center h-5 min-w-5 px-1 rounded-xs text-[0.625rem] font-bold leading-none bg-base-300 text-base-content-calm"
+          class="inline-flex items-center justify-center size-6 rounded-md ring-1 ring-base-content/10 text-xs font-bold bg-base-300 text-base-content-calm"
           >T</span
         >
       </a>`;
