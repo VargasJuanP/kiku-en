@@ -104,3 +104,18 @@ div[data-sc-content="related-words"] li + li::before { content: ", "; }
 div[data-sc-content="synonyms"]::before { content: "≈ "; color: var(--ke-muted); }
 div[data-sc-content="antonyms"]::before { content: "≠ "; color: var(--ke-muted); }
 div[data-sc-content="backlink"] { text-align: right; font-size: 0.75em; opacity: 0.6; }
+
+/* Oxford idioms: their own block, not part of the last sense */
+div[data-sc-custom-attr="idiom-box"] {
+  margin: 0.6em 0 0.1em; padding: 0.4em 0.6em;
+  border-radius: 6px; background: color-mix(in srgb, #d99a2b 12%, transparent);
+  border-left: 3px solid #d99a2b;
+}
+.gloss-list:not([data-count="1"]) div[data-sc-custom-attr="idiom-box"] { margin-left: -1.4em; }
+div[data-sc-custom-attr="idiom-header"] {
+  font-size: 0.7em; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #d99a2b;
+}
+div[data-sc-custom-attr="idiom-text"] { margin-top: 0.35em; font-weight: 600; color: var(--text-color); }
+div[data-sc-custom-attr="idiom-header"] + div[data-sc-custom-attr="idiom-text"] { margin-top: 0.1em; }
+div[data-sc-custom-attr="idiom-def"], div[data-sc-custom-attr="idiom-def-and-examples"] { padding-left: 0.8em; }
+div[data-sc-custom-attr="idiom-box"] ul[data-sc-custom-attr="examples"] { border-left-color: color-mix(in srgb, #d99a2b 45%, transparent); }

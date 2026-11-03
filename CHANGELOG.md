@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dictionary pages are named after the dictionary's alias in Yomitan.
 - `MiscInfo` is hidden when it's only the title of a Yomitan page
   ("Yomitan Popup Preview", "word - Yomitan Search").
+- Oxford's idioms are set apart from the senses, at the end of their entry,
+  instead of inside the last sense (on the card and in `yomitan/popup.css`).
 
 ### Added
 

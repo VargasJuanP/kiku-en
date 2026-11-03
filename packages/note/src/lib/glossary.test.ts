@@ -87,6 +87,20 @@ describe("decorateGlossary", () => {
     expect(decorateGlossary(html, { showDictionary: false })).toContain("<i>(rare)</i>");
   });
 
+  it("moves Oxford's idioms out of the last sense, to the end of the entry", () => {
+    const html =
+      '<div class="yomitan-glossary"><ol><li data-dictionary="seth-oald-extra"><i>(verb, seth-oald-extra)</i> <ul>' +
+      "<li><span>to carry</span></li>" +
+      '<li><span>to turn<div data-sc-custom-attr="idiom-box"><div data-sc-custom-attr="idiom-header">Idioms</div>' +
+      '<div data-sc-custom-attr="idiom-text">bear fruit</div></div></span></li>' +
+      "</ul></li></ol></div>";
+    const doc = parseHtml(decorateGlossary(html, { showDictionary: false }));
+    const idioms = doc.querySelector('[data-sc-custom-attr="idiom-box"]');
+    expect(idioms?.closest("li ul > li")).toBeNull();
+    expect(idioms?.parentElement?.matches("li[data-dictionary]")).toBe(true);
+    expect(idioms?.previousElementSibling?.tagName).toBe("UL");
+  });
+
   it("folds examples after the first two", () => {
     const doc = parseHtml(decorateGlossary(glossary, { showDictionary: false }));
     const [visible] = doc.querySelectorAll('ul[data-sc-custom-attr="examples"]');

@@ -111,6 +111,12 @@ export function decorateGlossary(html: string, options: { showDictionary: boolea
     line.element.replaceWith(chips);
   }
 
+  // Oxford puts an entry's idioms inside its last sense; they belong to the whole entry.
+  for (const idioms of doc.querySelectorAll('[data-sc-custom-attr="idiom-box"]')) {
+    const senses = idioms.closest("li")?.parentElement;
+    if (senses?.matches("ul, ol")) senses.after(idioms);
+  }
+
   for (const examples of doc.querySelectorAll('ul[data-sc-custom-attr="examples"]')) {
     const hidden = Array.from(examples.children).slice(VISIBLE_EXAMPLES);
     if (hidden.length === 0) continue;

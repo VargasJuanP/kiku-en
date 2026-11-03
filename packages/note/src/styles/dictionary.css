@@ -173,6 +173,40 @@
     content: "▾ ";
   }
 
+  /*
+  *   ────────────────────────────── Idioms ───────────────────────────────
+  */
+  div[data-sc-custom-attr="idiom-box"] {
+    margin-top: 0.75em;
+    padding: 0.5em 0.75em;
+    border-inline-start: 3px solid var(--color-warning);
+    border-radius: 0 0.5rem 0.5rem 0;
+    background-color: color-mix(in oklab, var(--color-warning) 10%, transparent);
+    font-size: 0.9em;
+  }
+  div[data-sc-custom-attr="idiom-header"] {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-warning);
+  }
+  div[data-sc-custom-attr="idiom-text"] {
+    margin-top: 0.5em;
+    font-weight: 600;
+  }
+  div[data-sc-custom-attr="idiom-header"] + div[data-sc-custom-attr="idiom-text"] {
+    margin-top: 0.125em;
+  }
+  div[data-sc-custom-attr="idiom-def"],
+  div[data-sc-custom-attr="idiom-def-and-examples"] {
+    padding-inline-start: 1em;
+    color: var(--color-base-content-calm);
+  }
+  div[data-sc-custom-attr="idiom-box"] ul[data-sc-custom-attr="examples"] {
+    border-inline-start-color: color-mix(in oklab, var(--color-warning) 45%, transparent);
+  }
+
   span[data-sc-content="bold-text"] {
     font-weight: 600;
     color: var(--color-base-content-primary);
