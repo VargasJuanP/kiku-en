@@ -114,7 +114,7 @@ export function Back(props: { onExitNested?: () => void }) {
               <div class="expression-audio-box">
                 <ExpressionSection />
                 <div
-                  class="mt-2 sm:mt-4 gap-4 flex-wrap justify-center ipa ipa-field min-h-lh"
+                  class="mt-2 sm:mt-4 gap-4 flex-wrap justify-center items-center ipa ipa-field min-h-lh"
                   {...$ipaFieldDataset()}
                 >
                   {$ankiFields.ExpressionIPA && $card.ready && <Lazy.Ipa />}

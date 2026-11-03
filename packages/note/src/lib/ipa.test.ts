@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseIpa } from "./ipa";
+import { orderForDisplay, parseIpa } from "./ipa";
 
 const transcriptions = (html: string) => parseIpa(html).map((v) => v.transcription);
 
@@ -61,5 +61,31 @@ describe("parseIpa", () => {
 
   it("drops duplicate variants", () => {
     expect(transcriptions("/ˈwɔːtə/, /ˈwɔːtə/")).toEqual(["/ˈwɔːtə/"]);
+  });
+
+  it("drops repeated labels", () => {
+    // As Wiktionary data produces for "water"
+    expect(
+      parseIpa("<ul><li>(Baltimore, Philadelphia) [ˈwʊ.ɾɚ] (Philadelphia, Baltimore)</li></ul>"),
+    ).toEqual([{ transcription: "[ˈwʊ.ɾɚ]", label: "Baltimore, Philadelphia" }]);
+  });
+});
+
+describe("orderForDisplay", () => {
+  const variant = (transcription: string) => ({ transcription, label: "" });
+
+  it("puts phonemic /…/ transcriptions before phonetic […] ones, keeping dictionary order", () => {
+    const ordered = orderForDisplay([
+      variant("/ˈwɔ.tɚ/"),
+      variant("[ˈwɔ.ɾɚ]"),
+      variant("/ˈwɑ.tɚ/"),
+      variant("[ˈwɑ.ɾɚ]"),
+    ]);
+    expect(ordered.map((v) => v.transcription)).toEqual([
+      "/ˈwɔ.tɚ/",
+      "/ˈwɑ.tɚ/",
+      "[ˈwɔ.ɾɚ]",
+      "[ˈwɑ.ɾɚ]",
+    ]);
   });
 });

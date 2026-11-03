@@ -1,18 +1,38 @@
-import { createMemo, ErrorBoundary, For, Show } from "solid-js";
+import { createMemo, createSignal, ErrorBoundary, For, Show } from "solid-js";
 import { useAnkiFieldContext } from "#/src/contexts/AnkiFieldsContext";
 import { useCtxContext } from "#/src/contexts/CtxContext";
 import { useGeneralContext } from "#/src/contexts/GeneralContext";
-import { parseIpa, type IpaVariant } from "#/src/lib/ipa";
+import { orderForDisplay, parseIpa, type IpaVariant } from "#/src/lib/ipa";
+
+/** Dictionaries like Wiktionary list dozens of accents; the rest are one tap away. */
+const VISIBLE_VARIANTS = 2;
 
 /** The word's pronunciations in IPA, one chip per variant (e.g. UK and US). */
 export function Ipa() {
   const { $ankiFields } = useAnkiFieldContext();
-  const $variants = createMemo(() => parseIpa($ankiFields.ExpressionIPA));
+  const $variants = createMemo(() => orderForDisplay(parseIpa($ankiFields.ExpressionIPA)));
+  const [$expanded, $setExpanded] = createSignal(false);
+  const $visible = createMemo(() =>
+    $expanded() ? $variants() : $variants().slice(0, VISIBLE_VARIANTS),
+  );
+  const $hiddenCount = createMemo(() => $variants().length - $visible().length);
 
   return (
-    <For each={$variants()}>
-      {(variant, index) => <IpaVariantView variant={variant} index={index()} />}
-    </For>
+    <>
+      <For each={$visible()}>
+        {(variant, index) => <IpaVariantView variant={variant} index={index()} />}
+      </For>
+      <Show when={$hiddenCount() > 0 || $expanded()}>
+        <button
+          type="button"
+          class="btn btn-xs btn-ghost text-base-content-soft"
+          on:click={() => $setExpanded((expanded) => !expanded)}
+          on:touchend={(e) => e.stopPropagation()}
+        >
+          {$expanded() ? "less" : `+${$hiddenCount()}`}
+        </button>
+      </Show>
+    </>
   );
 }
 

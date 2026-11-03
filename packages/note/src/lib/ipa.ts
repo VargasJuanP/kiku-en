@@ -65,10 +65,21 @@ function parseVariant(text: string): IpaVariant | undefined {
   if (!rest) return undefined;
 
   const delimited = /^\/.*\/$|^\[.*\]$/.test(rest);
+  const uniqueLabels = [...new Set(labels.flatMap((label) => label.split(/\s*,\s*/)))];
   return {
     transcription: delimited ? rest : `/${rest.replace(/^\/|\/$/g, "")}/`,
-    label: labels.join(", "),
+    label: uniqueLabels.filter(Boolean).join(", "),
   };
+}
+
+/**
+ * Phonemic /…/ transcriptions first, then phonetic […] ones, each in the
+ * dictionary's order. Phonemic transcriptions are what learner dictionaries
+ * use; Wiktionary lists the main accents first.
+ */
+export function orderForDisplay(variants: IpaVariant[]): IpaVariant[] {
+  const isPhonemic = (variant: IpaVariant) => variant.transcription.startsWith("/");
+  return [...variants.filter(isPhonemic), ...variants.filter((variant) => !isPhonemic(variant))];
 }
 
 /** Splits on line breaks, ";" and ",", except inside /…/ or […] transcriptions. */

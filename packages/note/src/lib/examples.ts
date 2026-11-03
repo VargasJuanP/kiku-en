@@ -12,7 +12,8 @@ const replayButton = (index: number) =>
 // oxfmt-ignore
 export const exampleFields: AnkiFields = {
   Expression: "reluctant",
-  ExpressionIPA: "UK: /rɪˈlʌktənt/, US: /rɪˈlʌktənt/",
+  // Shaped like Yomitan's {phonetic-transcriptions} output.
+  ExpressionIPA: "<ul><li class=\"pronunciation\" data-pronunciation-type=\"phonetic-transcription\"><i>(<span class=\"tag\" data-details=\"UK\">UK</span>)</i> /rɪˈlʌk.tənt/</li><li class=\"pronunciation\" data-pronunciation-type=\"phonetic-transcription\"><i>(<span class=\"tag\" data-details=\"UK\">UK</span>)</i> [ɹɪˈlʌk.tʰn̩t]</li><li class=\"pronunciation\" data-pronunciation-type=\"phonetic-transcription\"><i>(<span class=\"tag\" data-details=\"US\">US</span>)</i> /ɹɪˈlʌk.tənt/</li><li class=\"pronunciation\" data-pronunciation-type=\"phonetic-transcription\"><i>(<span class=\"tag\" data-details=\"US\">US</span>)</i> [ɹɪˈlʌk.tn̩t]</li><li class=\"pronunciation\" data-pronunciation-type=\"phonetic-transcription\"><i>(<span class=\"tag\" data-details=\"General Australian\">General Australian</span>)</i> /rəˈlak.tənt/</li></ul>",
   ExpressionAudio: replayButton(0),
   RelatedExpression: "",
   SelectionText: "",
