@@ -12,7 +12,7 @@ plugins, AnkiDroid integration) and replaces the Japanese-specific parts:
 | ------------------------------------------ | -------------------------------------------------------- |
 | Furigana and reading fields                | `ExpressionIPA`, shown as one chip per variant (UK, US…) |
 | Pitch accent graphs and colours            | Covered by IPA, which marks stress (ˈ ˌ)                 |
-| Kanji page, kanji tooltips, kanji database | Removed                                                  |
+| Kanji page, kanji tooltips, kanji database | Word page: the word's family, homophones and other cards |
 | Related cards by kanji and reading         | Related cards by word and `RelatedExpression`            |
 | Cards sharing a kanji                      | Word family and homophones from your collection          |
 | Front side shows homographs with a reading | Shows heteronyms with their IPA (_read_ /riːd/, /rɛd/)   |
@@ -87,6 +87,11 @@ the word's family and the ones that sound the same:
   _get over_ is family of _get_, not of _take over_.
 - **Sounds like**: different words whose pronunciations shown on the card are
   the same (_bear_ /ber/ and _bare_ /ber/), whatever the IPA notation.
+
+The row shows four of each; tap _family_, _sounds like_ or _+N_, or the word
+itself, for the word's page: every related card by kind (family, sounds like,
+same word, related), with a search box, as the Japanese Kiku's kanji page.
+Tapping a card there opens it.
 
 Both only look at your own cards, so a false friend like _early_ / _ear_ only
 shows up if you have both. As with related cards, unstudied cards are left out

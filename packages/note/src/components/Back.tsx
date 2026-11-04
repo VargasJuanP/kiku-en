@@ -29,6 +29,7 @@ const Lazy = {
   AnkiMobileDebug: lazy(async () => ({ default: (await import("#/src/lazy")).AnkiMobileDebug })),
   RelatedExpression: lazy(async () => ({ default: (await import("#/src/lazy")).RelatedExpression, })),
   Frequency: lazy(async () => ({ default: (await import("#/src/lazy")).Frequency })),
+  WordPage: lazy(async () => ({ default: (await import("#/src/lazy")).WordPage })),
 };
 
 export function Back(props: { onExitNested?: () => void }) {
@@ -70,6 +71,9 @@ export function Back(props: { onExitNested?: () => void }) {
       <Switch>
         <Match when={$card.page === "settings" && $card.ready}>
           <Lazy.Settings />
+        </Match>
+        <Match when={$card.page === "word" && $card.ready}>
+          <Lazy.WordPage />
         </Match>
         <Match when={$card.page === "nested" && $card.ready}>
           <AnkiFieldContextProvider

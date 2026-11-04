@@ -4,7 +4,7 @@ import type { Constants } from "#/src/lib/contants";
 import { parseRelatedExpression } from "#/src/lib/parse-related-expression";
 import type { AnkiFields, AnkiNote, KikuNotesManifest } from "#/src/lib/types";
 
-import { AnkiConnect, escapeRegex } from "./AnkiConnect";
+import { AnkiConnect } from "./AnkiConnect";
 import { type NexRemote } from "./nex";
 import type { MainThreadApi } from "./MainThreadApi";
 
@@ -144,17 +144,17 @@ export class WorkerThreadApi {
    * AnkiConnect.findRelativeCandidates), other than the card's own note.
    */
   async queryRelativeCandidates({
-    stems,
+    expressionPattern,
     ipaPatterns,
     cardId,
   }: {
-    stems: string[];
+    expressionPattern: string;
     ipaPatterns: string[];
     cardId: string;
   }): Promise<AnkiNote[]> {
-    const limit = 100;
+    const limit = 300;
     const fromCache = async () => {
-      const expression = stems.length ? new RegExp(stems.map(escapeRegex).join("|"), "i") : null;
+      const expression = expressionPattern ? new RegExp(expressionPattern, "i") : null;
       const ipa = ipaPatterns.length ? new RegExp(ipaPatterns.join("|")) : null;
       return (await this.cachedNotes())
         .filter(
@@ -166,7 +166,7 @@ export class WorkerThreadApi {
         .slice(0, limit);
     };
     const fromAnkiConnect = () =>
-      this.ankiConnect.findRelativeCandidates({ stems, ipaPatterns, limit });
+      this.ankiConnect.findRelativeCandidates({ expressionPattern, ipaPatterns, limit });
 
     let notes: AnkiNote[];
     try {

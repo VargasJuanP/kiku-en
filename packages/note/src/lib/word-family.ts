@@ -195,6 +195,21 @@ export function familySearchStems(expression: string): string[] {
 }
 
 /**
+ * A regular expression that finds the expressions a word's family can be in:
+ * one of its stems at the start of a word, or right after a prefix: "get"
+ * finds "getaway", but not "together" or "budget".
+ */
+export function familySearchPattern(expression: string) {
+  const stems = familySearchStems(expression).map(escapeRegex);
+  if (stems.length === 0) return "";
+  return `(?:^|[^a-z]|${PREFIXES.join("|")})(?:${stems.join("|")})`;
+}
+
+function escapeRegex(text: string) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/**
  * A regular expression that finds a homophone key in a raw ExpressionIPA
  * field, whatever its notation: stress marks and syllable dots may come
  * between sounds, and "r" may be written "ɹ".
@@ -203,7 +218,7 @@ export function homophoneSearchPattern(key: string) {
   return Array.from(key, (char) => {
     if (char === "r") return "[rɹ]";
     if (char === "g") return "[gɡ]";
-    return char.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    return escapeRegex(char);
   }).join("[ˈˌ.]?");
 }
 

@@ -22,7 +22,7 @@ export function useNavigationTransition() {
   const startViewTransition = useViewTransition();
 
   function navigate(
-    destination: "main" | "settings" | "nested" | (() => void),
+    destination: "main" | "settings" | "nested" | "word" | (() => void),
     direction: "back" | "forward",
     navigateBack?: () => void,
   ) {

@@ -7,15 +7,15 @@ import { useGeneralContext } from "#/src/contexts/GeneralContext";
 import { parseRelatedExpression } from "#/src/lib/parse-related-expression";
 import {
   areHomophones,
-  familySearchStems,
+  familySearchPattern,
   homophoneKeys,
   homophoneSearchPattern,
   isWordFamily,
 } from "#/src/lib/word-family";
 import { useWorker } from "./worker";
 
-/** Word family and homophones shown on the back side, per kind. */
-const MAX_RELATIVES = 4;
+/** Word family and homophones kept per kind, for the word page. */
+const MAX_RELATIVES = 50;
 
 /**
  * Finds the user's other notes for this word: notes with the same expression,
@@ -107,7 +107,7 @@ export function useCardQuery({
     const ipa = ankiFields.ExpressionIPA;
     const candidates = (
       await workerApi.queryRelativeCandidates({
-        stems: familySearchStems(expression),
+        expressionPattern: familySearchPattern(expression),
         ipaPatterns: homophoneKeys(ipa).map(homophoneSearchPattern),
         cardId: ankiFields.CardID,
       })

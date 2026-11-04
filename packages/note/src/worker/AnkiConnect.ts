@@ -47,22 +47,21 @@ export class AnkiConnect {
 
   /**
    * Candidates for a word's family and homophones: notes whose Expression
-   * contains one of `stems`, or whose ExpressionIPA matches one of the
+   * matches `expressionPattern`, or whose ExpressionIPA matches one of the
    * `ipaPatterns` (regular expressions). Broad on purpose; the caller keeps
    * the real matches.
    */
   async findRelativeCandidates({
-    stems,
+    expressionPattern,
     ipaPatterns,
     limit,
   }: {
-    stems: string[];
+    expressionPattern: string;
     ipaPatterns: string[];
     limit: number;
   }) {
-    const alternatives = (values: string[]) => values.map(escapeRegex).join("|");
     const conditions = [
-      stems.length ? `"Expression:re:(?:${alternatives(stems)})"` : "",
+      expressionPattern ? `"Expression:re:${expressionPattern}"` : "",
       ipaPatterns.length ? `"ExpressionIPA:re:(?:${ipaPatterns.join("|")})"` : "",
     ].filter(Boolean);
     if (conditions.length === 0) return [];

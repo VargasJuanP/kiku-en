@@ -13,9 +13,13 @@ import { type AnkiFields, ankiFieldsSkeleton } from "#/src/lib/types";
 import { useGeneralContext } from "./GeneralContext";
 import { useCardQuery, type $$Card } from "#/src/hooks/query";
 
+export type WordTab = "family" | "homophones" | "same" | "related";
+
 export type CardStore = {
   side: "front" | "back";
-  page: "main" | "settings" | "nested";
+  page: "main" | "settings" | "nested" | "word";
+  /** The tab the word page opens on. */
+  wordTab: WordTab;
   ready: boolean;
   //TODO: remove
   isNsfw: boolean;
@@ -55,6 +59,7 @@ export function CardStoreContextProvider(props: {
   const [$card, $setCard] = createStore<CardStore>({
     side: props.initialSide,
     page: "main",
+    wordTab: "family",
     ready: false,
     isNsfw: props.initialNsfw,
     uniqueId: createUniqueId(),

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   areHomophones,
   familyRoots,
+  familySearchPattern,
   familySearchStems,
   homophoneKeys,
   homophoneSearchPattern,
@@ -52,6 +53,19 @@ describe("familySearchStems", () => {
     expect(familySearchStems("happy")).toContain("happ");
     expect(familySearchStems("make")).toEqual(["mak"]);
     expect(familySearchStems("bear with")).toEqual(["bear"]);
+  });
+});
+
+describe("familySearchPattern", () => {
+  it("finds the stem at the start of a word or after a prefix only", () => {
+    const pattern = new RegExp(familySearchPattern("get"), "i");
+    for (const hit of ["get over", "getaway", "<b>Getting</b>"]) {
+      expect(pattern.test(hit), hit).toBe(true);
+    }
+    for (const miss of ["together", "budget", "forget"]) {
+      expect(pattern.test(miss), miss).toBe(false);
+    }
+    expect(new RegExp(familySearchPattern("bear"), "i").test("unbearable")).toBe(true);
   });
 });
 
