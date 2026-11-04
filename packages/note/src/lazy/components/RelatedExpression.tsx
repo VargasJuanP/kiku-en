@@ -12,8 +12,7 @@ import {
 } from "solid-js";
 import { ankiFieldsSkeleton, type AnkiNote } from "#/src/lib/types";
 import { useAnkiFieldContext } from "#/src/contexts/AnkiFieldsContext";
-import { useCardContext, type WordTab } from "#/src/contexts/CardContext";
-import { useNavigationTransition } from "#/src/hooks/transition";
+import { useCardContext } from "#/src/contexts/CardContext";
 import { useGeneralContext } from "#/src/contexts/GeneralContext";
 import { useConfigContext } from "#/src/contexts/ConfigContext";
 import { MoveDown } from "./Icons";
@@ -21,9 +20,6 @@ import { preloadImages } from "#/src/lib/dom";
 import { parseIpa } from "#/src/lib/ipa";
 
 const sortNote = (a: AnkiNote, b: AnkiNote) => b.noteId - a.noteId;
-
-/** Relatives of each kind shown in the row; the rest are on the word page. */
-const ROW_RELATIVES = 4;
 
 const dedupeByCardId = (notes: AnkiNote[]) => {
   const seen = new Set<string>();
@@ -42,7 +38,6 @@ function $RelatedExpression() {
   const { $ankiFields, $setAnkiFields, resetAnkiFields, initialAnkiFields, $isInitialAnkiFields } =
     useAnkiFieldContext();
   const [$ref, $setRef] = createSignal<HTMLDivElement>();
-  const { navigate } = useNavigationTransition();
 
   const $displayExpression = createMemo(() => {
     if ($initialSide() === "back") return initialAnkiFields.Expression;
@@ -186,58 +181,9 @@ function $RelatedExpression() {
     );
   }
 
-  /** A few of the word's relatives; the label and "+N" open the word page with all of them. */
-  function RelativeGroup(props: { label: string; title: string; tab: WordTab; notes: AnkiNote[] }) {
-    const openPage = () => {
-      $setCard("wordTab", props.tab);
-      navigate("word", "forward", () => navigate("main", "back"));
-    };
-    const pageButton = (text: string, extra: string) => (
-      <button
-        class={`cursor-pointer hover:text-base-content-calm transition-colors ${extra}`}
-        title={`${props.title}: see all`}
-        on:click={openPage}
-        on:touchend={(e) => e.stopPropagation()}
-      >
-        {text}
-      </button>
-    );
-    return (
-      <Show when={props.notes.length > 0}>
-        <div class="flex gap-x-2 sm:gap-x-3 items-baseline animate-fade-in-sm">
-          {pageButton(props.label, "text-xs sm:text-sm text-base-content-faint")}
-          <For each={props.notes.slice(0, ROW_RELATIVES)}>
-            {(note) => <NoteButton note={note} explicit={false} />}
-          </For>
-          <Show when={props.notes.length > ROW_RELATIVES}>
-            {pageButton(
-              `+${props.notes.length - ROW_RELATIVES}`,
-              "text-xs sm:text-sm text-base-content-soft bg-base-200 px-1.5 rounded-sm",
-            )}
-          </Show>
-        </div>
-      </Show>
-    );
-  }
-
-  // Like related cards, unstudied cards stay hidden unless the user opts in
-  const studied = (notes: AnkiNote[] | undefined) =>
-    (notes ?? []).filter(
-      (note) => !$config.relatedExpressionExcludeNewCards || !$newNotes().has(note.cards[0]),
-    );
-  const $family = createMemo(() => studied($$card()?.family));
-  const $homophones = createMemo(() => studied($$card()?.homophones));
-  const $hasRelatives = createMemo(() => $family().length + $homophones().length > 0);
-
   return (
     <div ref={$setRef} class="flex gap-x-2 sm:gap-x-4 flex-wrap relative">
-      <Show
-        when={
-          $relatedExpression().length ||
-          $hasRelatives() ||
-          ($isNewNote() && $initialSide() === "back")
-        }
-      >
+      <Show when={$relatedExpression().length || ($isNewNote() && $initialSide() === "back")}>
         <div class="flex gap-px items-center">
           <MoveDown
             class="size-4 sm:size-5 text-base-content-faint"
@@ -279,13 +225,6 @@ function $RelatedExpression() {
           />
         )}
       </For>
-      <RelativeGroup label="family" title="Word family" tab="family" notes={$family()} />
-      <RelativeGroup
-        label="sounds like"
-        title="Homophones"
-        tab="homophones"
-        notes={$homophones()}
-      />
     </div>
   );
 }

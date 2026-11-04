@@ -237,7 +237,7 @@ function RelatedExpressionSettings() {
         <ToggleSetting
           configKey="relatedExpressionExcludeNewCards"
           label="Exclude New Cards"
-          tooltip="Exclude new (unstudied) cards from related expressions, word family and homophones"
+          tooltip="Exclude new (unstudied) cards from related expression results"
         />
         <ToggleSetting
           configKey="relatedExpressionFallback"

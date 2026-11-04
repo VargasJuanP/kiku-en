@@ -30,10 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Word family and homophones: on the back side, the user's cards for words
-  sharing a root (_bear_, _unbearable_, _bear with_) and words that sound the
-  same (_bear_, _bare_), four of each; the word's page, opened by tapping the
-  word, lists them all with a search box.
+- Word page, opened by tapping the word on the back side: the user's cards for
+  words sharing a root (_bear_, _unbearable_, _bear with_), words that sound the
+  same (_bear_, _bare_), the same word and related words, with a search box.
 - `yomitan/popup.css`: custom CSS for Yomitan's popup, in the card's style.
 
 ## Kiku EN [0.1.0] - 2026-11-03

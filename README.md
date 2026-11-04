@@ -74,12 +74,11 @@ off: the card reads the dictionary from the last tag of each entry.
 On a card, `MiscInfo` is hidden when it's only the title of Yomitan's own
 search page or settings preview.
 
-## Word family and homophones
+## Word page
 
-On the back side, next to the related cards, Kiku EN lists your other cards in
-the word's family and the ones that sound the same:
-
-> **bear** · _family_ bear with · unbearable · _sounds like_ bare
+On the back side, tapping the word opens its page, as the Japanese Kiku's kanji
+page: your other cards related to it, by kind, with a search box. Tapping a
+card there opens it.
 
 - **Family**: words that share a root once common prefixes and suffixes are
   taken off (_un-_, _re-_, _mis-_, _-able_, _-ness_, _-ing_…, with spelling
@@ -87,15 +86,11 @@ the word's family and the ones that sound the same:
   _get over_ is family of _get_, not of _take over_.
 - **Sounds like**: different words whose pronunciations shown on the card are
   the same (_bear_ /ber/ and _bare_ /ber/), whatever the IPA notation.
+- **Same word** and **Related**: as the related cards above the word.
 
-The row shows four of each; tap _family_, _sounds like_ or _+N_, or the word
-itself, for the word's page: every related card by kind (family, sounds like,
-same word, related), with a search box, as the Japanese Kiku's kanji page.
-Tapping a card there opens it.
-
-Both only look at your own cards, so a false friend like _early_ / _ear_ only
-shows up if you have both. As with related cards, unstudied cards are left out
-unless _Related Expression → Exclude New Cards_ is off.
+Family and sounds-like only look at your own cards, so a false friend like
+_early_ / _ear_ only shows up if you have both. The word is only tappable when
+there is something to show.
 
 ### Yomitan popup
 
