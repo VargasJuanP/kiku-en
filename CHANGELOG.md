@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dictionary pages are named after the dictionary's alias in Yomitan.
 - `MiscInfo` is hidden when it's only the title of a Yomitan page
   ("Yomitan Popup Preview", "word - Yomitan Search").
+- Translations (`wty-en-xx-gloss`) show four per sense, the rest behind "+N";
+  in `yomitan/popup.css`, on hover.
+- Wiktionary's sense tags ("arch") are pills with their full name ("archaic").
 - External links show each site's icon, as same-size squares, instead of
   letter badges.
 - Oxford's idioms are set apart from the senses, at the end of their entry,

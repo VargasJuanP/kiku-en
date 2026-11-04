@@ -10,6 +10,8 @@ export type DictionaryGlossary = {
 
 /** Examples shown before the rest fold into a "+N examples" toggle. */
 const VISIBLE_EXAMPLES = 2;
+/** Translations shown before the rest fold into a "+N" toggle. */
+const VISIBLE_TRANSLATIONS = 4;
 
 /** Readable names for dictionaries commonly used for English. */
 const DICTIONARY_LABELS: Record<string, string> = {
@@ -118,17 +120,13 @@ export function decorateGlossary(html: string, options: { showDictionary: boolea
   }
 
   for (const examples of doc.querySelectorAll('ul[data-sc-custom-attr="examples"]')) {
-    const hidden = Array.from(examples.children).slice(VISIBLE_EXAMPLES);
-    if (hidden.length === 0) continue;
-    const more = doc.createElement("details");
-    more.className = "definition-more-examples";
-    const summary = doc.createElement("summary");
-    summary.textContent = `+${hidden.length} example${hidden.length === 1 ? "" : "s"}`;
-    const list = doc.createElement("ul");
-    list.setAttribute("data-sc-custom-attr", "examples");
-    list.append(...hidden);
-    more.append(summary, list);
-    examples.after(more);
+    fold(examples, VISIBLE_EXAMPLES, "definition-more-examples", (n) =>
+      n === 1 ? "+1 example" : `+${n} examples`,
+    );
+  }
+  // Wiktionary translations (wty-en-xx-gloss) can list a dozen synonyms
+  for (const translations of doc.querySelectorAll('ul[data-sc-content="glossary"]')) {
+    fold(translations, VISIBLE_TRANSLATIONS, "definition-more-translations", (n) => `+${n}`);
   }
 
   return doc.body.innerHTML;
@@ -140,6 +138,26 @@ export function glossaryContains(glossary: string, main: string) {
     (parseHtml(html).body.textContent ?? "").replace(/\s+/g, " ").trim();
   const mainText = text(main);
   return mainText.length > 0 && text(glossary).includes(mainText);
+}
+
+/** Moves a list's items after the first few into a <details> toggle that follows it. */
+function fold(
+  list: Element,
+  visible: number,
+  className: string,
+  label: (hidden: number) => string,
+) {
+  const hidden = Array.from(list.children).slice(visible);
+  if (hidden.length === 0) return;
+  const doc = list.ownerDocument;
+  const more = doc.createElement("details");
+  more.className = className;
+  const summary = doc.createElement("summary");
+  summary.textContent = label(hidden.length);
+  const rest = list.cloneNode(false) as Element;
+  rest.append(...hidden);
+  more.append(summary, rest);
+  list.after(more);
 }
 
 /** The "(verb, 3K, dictionary)" line Yomitan starts each entry with. */

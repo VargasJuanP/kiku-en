@@ -101,6 +101,22 @@ describe("decorateGlossary", () => {
     expect(idioms?.previousElementSibling?.tagName).toBe("UL");
   });
 
+  it("folds translations after the first four", () => {
+    const words = ["renuente", "reacio", "reluctante", "reticente", "renitente", "rezongón"];
+    const html =
+      '<div class="yomitan-glossary"><ol><li data-dictionary="wty-en-es-gloss"><i>(adj, wty-en-es-gloss)</i> <span><div>' +
+      '<div data-sc-content="sense-label">not wanting to take some action</div>' +
+      `<ul data-sc-content="glossary">${words.map((w) => `<li>${w}</li>`).join("")}</ul>` +
+      "</div></span></li></ol></div>";
+    const doc = parseHtml(decorateGlossary(html, { showDictionary: false }));
+    const [visible, rest] = doc.querySelectorAll('ul[data-sc-content="glossary"]');
+    expect(Array.from(visible.children, (li) => li.textContent)).toEqual(words.slice(0, 4));
+    expect(
+      rest.closest(".definition-more-translations")?.querySelector("summary")?.textContent,
+    ).toBe("+2");
+    expect(rest.children).toHaveLength(2);
+  });
+
   it("folds examples after the first two", () => {
     const doc = parseHtml(decorateGlossary(glossary, { showDictionary: false }));
     const [visible] = doc.querySelectorAll('ul[data-sc-custom-attr="examples"]');

@@ -119,3 +119,18 @@ div[data-sc-custom-attr="idiom-text"] { margin-top: 0.35em; font-weight: 600; co
 div[data-sc-custom-attr="idiom-header"] + div[data-sc-custom-attr="idiom-text"] { margin-top: 0.1em; }
 div[data-sc-custom-attr="idiom-def"], div[data-sc-custom-attr="idiom-def-and-examples"] { padding-left: 0.8em; }
 div[data-sc-custom-attr="idiom-box"] ul[data-sc-custom-attr="examples"] { border-left-color: color-mix(in srgb, #d99a2b 45%, transparent); }
+
+/* Wiktionary sense tags ("arch", "slang"): pills on the sense's line, with the full name */
+div[data-sc-content="tags"] { display: inline-flex; gap: 0.25em; margin-right: 0.35em; vertical-align: 0.1em; }
+span[data-sc-content="tag"] {
+  padding: 0 0.5em; border-radius: 999px; font-size: 0; line-height: 1.5;
+  background: var(--ke-faint); color: var(--ke-muted);
+}
+span[data-sc-content="tag"]::before { content: attr(title); font-size: 0.75rem; }
+span[data-sc-content="tag"][data-sc-category="archaism"] { background: color-mix(in srgb, #d9534f 18%, transparent); }
+
+/* Spanish glosses: four translations; hover the sense for the rest */
+ul[data-sc-content="glossary"] > li:nth-child(n+5) { display: none; }
+ul[data-sc-content="glossary"]:has(> li:nth-child(5))::after { content: "…"; color: var(--ke-muted); }
+.gloss-item:hover ul[data-sc-content="glossary"] > li { display: list-item; }
+.gloss-item:hover ul[data-sc-content="glossary"]::after { content: none; }
