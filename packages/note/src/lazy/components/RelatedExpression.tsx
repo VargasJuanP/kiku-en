@@ -140,9 +140,76 @@ function $RelatedExpression() {
     onCleanup(() => observer.disconnect());
   });
 
+  /** Shows the note in place of the card's own, like the related cards above. */
+  function NoteButton(props: { note: AnkiNote; explicit: boolean; text?: string }) {
+    const note = props.note;
+    const cardId = note.cards[0]?.toString() ?? "";
+    const isNew = $newNotes().has(Number(cardId));
+    return (
+      <button
+        class="hover:text-base-content transition-colors cursor-pointer animate-fade-in-sm indicator"
+        classList={{
+          "text-base-content-soft underline underline-offset-4 sm:underline-offset-5 decoration-1":
+            $ankiFields.CardID !== cardId && props.explicit,
+          "text-base-content-soft": $ankiFields.CardID !== cardId && !props.explicit,
+          "text-base-content underline underline-offset-4 sm:underline-offset-5 decoration-1":
+            $ankiFields.CardID === cardId && props.explicit,
+          "text-base-content": $ankiFields.CardID === cardId && !props.explicit,
+        }}
+        on:click={() => {
+          $setCard("fadeInTopSection", false);
+          $setAnkiFields({
+            ...ankiFieldsSkeleton,
+            ...Object.fromEntries(
+              Object.entries(note.fields).map(([key, value]) => {
+                return [key, value.value];
+              }),
+            ),
+            CardID: cardId,
+            Tags: note.tags.join(" "),
+            __IS_ROOT__: false,
+          });
+          $setCard("side", "back");
+        }}
+        on:touchend={(e) => e.stopPropagation()}
+      >
+        {props.text ?? note.fields.Expression.value}
+        <Show when={isNew}>
+          <span class="status status-info"></span>
+        </Show>
+      </button>
+    );
+  }
+
+  function RelativeGroup(props: { label: string; title: string; notes: AnkiNote[] }) {
+    return (
+      <Show when={props.notes.length > 0}>
+        <div class="flex gap-x-2 sm:gap-x-3 items-baseline animate-fade-in-sm" title={props.title}>
+          <span class="text-xs sm:text-sm text-base-content-faint">{props.label}</span>
+          <For each={props.notes}>{(note) => <NoteButton note={note} explicit={false} />}</For>
+        </div>
+      </Show>
+    );
+  }
+
+  // Like related cards, unstudied cards stay hidden unless the user opts in
+  const studied = (notes: AnkiNote[] | undefined) =>
+    (notes ?? []).filter(
+      (note) => !$config.relatedExpressionExcludeNewCards || !$newNotes().has(note.cards[0]),
+    );
+  const $family = createMemo(() => studied($$card()?.family));
+  const $homophones = createMemo(() => studied($$card()?.homophones));
+  const $hasRelatives = createMemo(() => $family().length + $homophones().length > 0);
+
   return (
     <div ref={$setRef} class="flex gap-x-2 sm:gap-x-4 flex-wrap relative">
-      <Show when={$relatedExpression().length || ($isNewNote() && $initialSide() === "back")}>
+      <Show
+        when={
+          $relatedExpression().length ||
+          $hasRelatives() ||
+          ($isNewNote() && $initialSide() === "back")
+        }
+      >
         <div class="flex gap-px items-center">
           <MoveDown
             class="size-4 sm:size-5 text-base-content-faint"
@@ -171,50 +238,21 @@ function $RelatedExpression() {
         </div>
       </Show>
       <For each={$relatedExpression()}>
-        {(note) => {
-          const cardId = note.cards[0]?.toString() ?? "";
-          const isNew = $newNotes().has(Number(cardId));
-          return (
-            <button
-              class="hover:text-base-content transition-colors cursor-pointer animate-fade-in-sm indicator"
-              classList={{
-                "text-base-content-soft underline underline-offset-4 sm:underline-offset-5 decoration-1":
-                  $ankiFields.CardID !== cardId && isExplicitRelatedExpression(note),
-                "text-base-content-soft":
-                  $ankiFields.CardID !== cardId && !isExplicitRelatedExpression(note),
-                "text-base-content underline underline-offset-4 sm:underline-offset-5 decoration-1":
-                  $ankiFields.CardID === cardId && isExplicitRelatedExpression(note),
-                "text-base-content":
-                  $ankiFields.CardID === cardId && !isExplicitRelatedExpression(note),
-              }}
-              on:click={() => {
-                $setCard("fadeInTopSection", false);
-                $setAnkiFields({
-                  ...ankiFieldsSkeleton,
-                  ...Object.fromEntries(
-                    Object.entries(note.fields).map(([key, value]) => {
-                      return [key, value.value];
-                    }),
-                  ),
-                  CardID: cardId,
-                  Tags: note.tags.join(" "),
-                  __IS_ROOT__: false,
-                });
-                $setCard("side", "back");
-              }}
-              on:touchend={(e) => e.stopPropagation()}
-            >
-              {$initialSide() === "front"
+        {(note) => (
+          <NoteButton
+            note={note}
+            explicit={isExplicitRelatedExpression(note)}
+            text={
+              $initialSide() === "front"
                 ? (parseIpa(note.fields.ExpressionIPA?.value ?? "")[0]?.transcription ??
                   note.fields.Expression.value)
-                : note.fields.Expression.value}
-              <Show when={isNew}>
-                <span class="status status-info"></span>
-              </Show>
-            </button>
-          );
-        }}
+                : undefined
+            }
+          />
+        )}
       </For>
+      <RelativeGroup label="family" title="Word family" notes={$family()} />
+      <RelativeGroup label="sounds like" title="Homophones" notes={$homophones()} />
     </div>
   );
 }

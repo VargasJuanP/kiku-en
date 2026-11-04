@@ -4,7 +4,7 @@ import type { Constants } from "#/src/lib/contants";
 import { parseRelatedExpression } from "#/src/lib/parse-related-expression";
 import type { AnkiFields, AnkiNote, KikuNotesManifest } from "#/src/lib/types";
 
-import { AnkiConnect } from "./AnkiConnect";
+import { AnkiConnect, escapeRegex } from "./AnkiConnect";
 import { type NexRemote } from "./nex";
 import type { MainThreadApi } from "./MainThreadApi";
 
@@ -48,6 +48,22 @@ export class WorkerThreadApi {
   }
 
   chunkCache = new Map<string, AnkiNote[]>();
+  /** The note type's notes from the notes cache, loading its chunks once. */
+  async cachedNotes(): Promise<AnkiNote[]> {
+    const manifest = await this.notesManifest();
+    await Promise.all(
+      manifest.chunks.map(async (chunk) => {
+        if (this.chunkCache.has(chunk.file)) return;
+        const buf = await this.main.fetchArrayBuffer(`${this.assetsPath}/${chunk.file}`);
+        const text = await gunzipArrayBuffer(buf).text();
+        this.chunkCache.set(chunk.file, JSON.parse(text) as AnkiNote[]);
+      }),
+    );
+    return manifest.chunks
+      .flatMap((chunk) => this.chunkCache.get(chunk.file) ?? [])
+      .filter((note) => note.modelName === this.constants.NOTE_TYPE);
+  }
+
   /** Notes whose Expression is one of `expressionList`, or that list one of them as related. */
   async query({
     expressionList,
@@ -60,42 +76,25 @@ export class WorkerThreadApi {
       const expressionListResult: Record<string, AnkiNote[]> = {};
       const newNotes: AnkiNote[] = [];
 
-      const manifest = await this.notesManifest();
       const expressionSet = new Set(expressionList);
 
-      await Promise.all(
-        manifest.chunks.map(async (chunk) => {
-          if (this.chunkCache.has(chunk.file)) return;
-          const buf = await this.main.fetchArrayBuffer(`${this.assetsPath}/${chunk.file}`);
-          const text = await gunzipArrayBuffer(buf).text();
-          this.chunkCache.set(chunk.file, JSON.parse(text) as AnkiNote[]);
-        }),
-      );
+      for (const note of await this.cachedNotes()) {
+        const expr = note.fields.Expression.value;
+        const relatedExprValue = note.fields.RelatedExpression?.value ?? "";
 
-      for (const chunk of manifest.chunks) {
-        const notes = this.chunkCache.get(chunk.file);
-        if (!notes) continue;
+        // ------- Expression Search (exact) -------
+        if (expressionSet.has(expr)) {
+          expressionListResult[expr] ??= [];
+          expressionListResult[expr].push(note);
+        }
 
-        for (const note of notes) {
-          if (note.modelName !== this.constants.NOTE_TYPE) continue;
-
-          const expr = note.fields.Expression.value;
-          const relatedExprValue = note.fields.RelatedExpression?.value ?? "";
-
-          // ------- Expression Search (exact) -------
-          if (expressionSet.has(expr)) {
-            expressionListResult[expr] ??= [];
-            expressionListResult[expr].push(note);
-          }
-
-          // ------- Related Expression Search (contains) -------
-          if (relatedExprValue) {
-            for (const rel of parseRelatedExpression(relatedExprValue)) {
-              if (expressionSet.has(rel)) {
-                expressionListResult[rel] ??= [];
-                if (!expressionListResult[rel].includes(note)) {
-                  expressionListResult[rel].push(note);
-                }
+        // ------- Related Expression Search (contains) -------
+        if (relatedExprValue) {
+          for (const rel of parseRelatedExpression(relatedExprValue)) {
+            if (expressionSet.has(rel)) {
+              expressionListResult[rel] ??= [];
+              if (!expressionListResult[rel].includes(note)) {
+                expressionListResult[rel].push(note);
               }
             }
           }
@@ -138,6 +137,44 @@ export class WorkerThreadApi {
     }
 
     return { ...result, isNotesCache };
+  }
+
+  /**
+   * Candidates for a word's family and homophones (see
+   * AnkiConnect.findRelativeCandidates), other than the card's own note.
+   */
+  async queryRelativeCandidates({
+    stems,
+    ipaPatterns,
+    cardId,
+  }: {
+    stems: string[];
+    ipaPatterns: string[];
+    cardId: string;
+  }): Promise<AnkiNote[]> {
+    const limit = 100;
+    const fromCache = async () => {
+      const expression = stems.length ? new RegExp(stems.map(escapeRegex).join("|"), "i") : null;
+      const ipa = ipaPatterns.length ? new RegExp(ipaPatterns.join("|")) : null;
+      return (await this.cachedNotes())
+        .filter(
+          (note) =>
+            expression?.test(note.fields.Expression.value) ||
+            ipa?.test(note.fields.ExpressionIPA?.value ?? ""),
+        )
+        .sort((a, b) => b.noteId - a.noteId)
+        .slice(0, limit);
+    };
+    const fromAnkiConnect = () =>
+      this.ankiConnect.findRelativeCandidates({ stems, ipaPatterns, limit });
+
+    let notes: AnkiNote[];
+    try {
+      notes = this.preferAnkiConnect ? await fromAnkiConnect() : await fromCache();
+    } catch {
+      notes = this.preferAnkiConnect ? await fromCache() : await fromAnkiConnect();
+    }
+    return notes.filter((note) => !note.cards.includes(Number(cardId)));
   }
 
   debounceTimer: ReturnType<typeof setTimeout> | null = null;

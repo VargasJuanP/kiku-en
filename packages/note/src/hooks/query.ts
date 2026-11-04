@@ -5,11 +5,22 @@ import type { AnkiNote } from "#/src/lib/types";
 import { type Store, unwrap } from "solid-js/store";
 import { useGeneralContext } from "#/src/contexts/GeneralContext";
 import { parseRelatedExpression } from "#/src/lib/parse-related-expression";
+import {
+  areHomophones,
+  familySearchStems,
+  homophoneKeys,
+  homophoneSearchPattern,
+  isWordFamily,
+} from "#/src/lib/word-family";
 import { useWorker } from "./worker";
+
+/** Word family and homophones shown on the back side, per kind. */
+const MAX_RELATIVES = 4;
 
 /**
  * Finds the user's other notes for this word: notes with the same expression,
- * and notes linked to it through the RelatedExpression field (in either direction).
+ * notes linked to it through the RelatedExpression field (in either direction),
+ * and, on the back side, its word family and homophones.
  */
 export function useCardQuery({
   $initialSide,
@@ -67,16 +78,74 @@ export function useCardQuery({
         relatedExpression = Array.from(new Map(combinedRelated.map((n) => [n.noteId, n])).values());
       }
 
+      let family: AnkiNote[] = [];
+      let homophones: AnkiNote[] = [];
+      if (!isFront) {
+        try {
+          const shown = new Set([...sameExpression, ...relatedExpression].map((n) => n.noteId));
+          ({ family, homophones } = await findRelatives(shown));
+        } catch (e) {
+          logger.warn("[query] word family and homophones unavailable:", e);
+        }
+        if (aborter.signal.aborted) return;
+      }
+
       logger.debug(
         `[query] results for "${expression}": source=${isNotesCache ? "cache" : "ankiConnect"}, ` +
-          `sameExpr=${sameExpression.length}, related=${relatedExpression.length}`,
+          `sameExpr=${sameExpression.length}, related=${relatedExpression.length}, ` +
+          `family=${family.length}, homophones=${homophones.length}`,
       );
 
-      return { sameExpression, relatedExpression, newNotes, isNotesCache };
+      return { sameExpression, relatedExpression, family, homophones, newNotes, isNotesCache };
     },
   );
 
+  /** Notes in the word's family and notes that sound the same, newest first, one per word. */
+  async function findRelatives(exclude: Set<number>) {
+    const workerApi = await getWorker();
+    const expression = ankiFields.Expression;
+    const ipa = ankiFields.ExpressionIPA;
+    const candidates = (
+      await workerApi.queryRelativeCandidates({
+        stems: familySearchStems(expression),
+        ipaPatterns: homophoneKeys(ipa).map(homophoneSearchPattern),
+        cardId: ankiFields.CardID,
+      })
+    ).filter((note) => !exclude.has(note.noteId));
+
+    const family = onePerWord(
+      candidates.filter((note) => isWordFamily(expression, note.fields.Expression.value)),
+    );
+    const inFamily = new Set(family.map((note) => note.noteId));
+    const homophones = onePerWord(
+      candidates.filter(
+        (note) =>
+          !inFamily.has(note.noteId) &&
+          areHomophones(
+            { expression, ipa },
+            {
+              expression: note.fields.Expression.value,
+              ipa: note.fields.ExpressionIPA?.value ?? "",
+            },
+          ),
+      ),
+    );
+    return {
+      family: family.slice(0, MAX_RELATIVES),
+      homophones: homophones.slice(0, MAX_RELATIVES),
+    };
+  }
+
   return { $$card };
+}
+
+function onePerWord(notes: AnkiNote[]) {
+  const byWord = new Map<string, AnkiNote>();
+  for (const note of [...notes].sort((a, b) => b.noteId - a.noteId)) {
+    const word = note.fields.Expression.value.trim().toLowerCase();
+    if (!byWord.has(word)) byWord.set(word, note);
+  }
+  return [...byWord.values()];
 }
 
 export type $$Card = ReturnType<typeof useCardQuery>["$$card"];

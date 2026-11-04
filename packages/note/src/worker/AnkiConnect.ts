@@ -45,6 +45,37 @@ export class AnkiConnect {
     })) as Array<AnkiNote[]>;
   }
 
+  /**
+   * Candidates for a word's family and homophones: notes whose Expression
+   * contains one of `stems`, or whose ExpressionIPA matches one of the
+   * `ipaPatterns` (regular expressions). Broad on purpose; the caller keeps
+   * the real matches.
+   */
+  async findRelativeCandidates({
+    stems,
+    ipaPatterns,
+    limit,
+  }: {
+    stems: string[];
+    ipaPatterns: string[];
+    limit: number;
+  }) {
+    const alternatives = (values: string[]) => values.map(escapeRegex).join("|");
+    const conditions = [
+      stems.length ? `"Expression:re:(?:${alternatives(stems)})"` : "",
+      ipaPatterns.length ? `"ExpressionIPA:re:(?:${ipaPatterns.join("|")})"` : "",
+    ].filter(Boolean);
+    if (conditions.length === 0) return [];
+
+    const [ids] = await this.batchFindNotes([
+      `"note:${this.noteType}" AND (${conditions.join(" OR ")})`,
+    ]);
+    const newest = [...ids].sort((a, b) => b - a).slice(0, limit);
+    if (newest.length === 0) return [];
+    const [notes] = await this.batchNotesInfo([newest]);
+    return notes;
+  }
+
   /** Notes whose Expression is one of `expressionList`, or that list one of them as related. */
   async queryFieldContains({
     expressionList,

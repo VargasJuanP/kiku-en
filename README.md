@@ -14,6 +14,7 @@ plugins, AnkiDroid integration) and replaces the Japanese-specific parts:
 | Pitch accent graphs and colours            | Covered by IPA, which marks stress (ˈ ˌ)                 |
 | Kanji page, kanji tooltips, kanji database | Removed                                                  |
 | Related cards by kanji and reading         | Related cards by word and `RelatedExpression`            |
+| Cards sharing a kanji                      | Word family and homophones from your collection          |
 | Front side shows homographs with a reading | Shows heteronyms with their IPA (_read_ /riːd/, /rɛd/)   |
 | JPDB, Jisho, Google Japan links            | Cambridge, Merriam-Webster, Wiktionary, YouGlish, Images |
 | Japanese fonts, vertical writing           | Latin fonts, with IPA-friendly serifs (Charis, Gentium)  |
@@ -72,6 +73,24 @@ off: the card reads the dictionary from the last tag of each entry.
 
 On a card, `MiscInfo` is hidden when it's only the title of Yomitan's own
 search page or settings preview.
+
+## Word family and homophones
+
+On the back side, next to the related cards, Kiku EN lists your other cards in
+the word's family and the ones that sound the same:
+
+> **bear** · _family_ bear with · unbearable · _sounds like_ bare
+
+- **Family**: words that share a root once common prefixes and suffixes are
+  taken off (_un-_, _re-_, _mis-_, _-able_, _-ness_, _-ing_…, with spelling
+  changes like _happy_ → _happiness_). Phrasal verbs count by their verb:
+  _get over_ is family of _get_, not of _take over_.
+- **Sounds like**: different words whose pronunciations shown on the card are
+  the same (_bear_ /ber/ and _bare_ /ber/), whatever the IPA notation.
+
+Both only look at your own cards, so a false friend like _early_ / _ear_ only
+shows up if you have both. As with related cards, unstudied cards are left out
+unless _Related Expression → Exclude New Cards_ is off.
 
 ### Yomitan popup
 
